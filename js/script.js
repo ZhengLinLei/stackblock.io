@@ -19,7 +19,7 @@ const colorDesign = [
 // DEFINE BOX SIZE
 const boxSize = {
     x: 3,
-    y: 1,
+    y: 0.1,
     z: 3,
     range: 10
 }
