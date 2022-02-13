@@ -1,0 +1,99 @@
+*{
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+body{
+    font-family: 'Source Code Pro', monospace;
+    text-align: center;
+    cursor: pointer;
+
+    .point-result{
+        position: fixed;
+        top: calc(20vh + 50px);
+        z-index: 99;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: .8s;
+
+        &.active{
+            top: 40px;
+        }
+    }
+    .result-area{
+        &.disable{
+            opacity: 0;
+        }
+        transition: .4s;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, .8);
+        display: flex;
+        justify-content: center;
+
+        header{
+            margin-top: 20vh;
+            position: relative;
+            transition: 1s;
+            .best{
+                display: none;
+            }
+
+            &.new{
+                .best, .color-shape{
+                    display: block;
+                }
+                .score{
+                    display: none;
+                }
+            }
+            .color-shape {
+                height: 5px;
+                display: none;
+                width: 100%;
+                margin-top: 5px;
+                // colorArray = ["#42c2f1", "#fbda4f","#ab63df","#5fc581"]
+                background: linear-gradient(90deg, #42c2f1 0%, #fbda4f 25%, #ab63df 50%, #5fc581 75%, #42c2f1 100%);
+                background-size: 200%;
+                animation: moveGradient 3s linear infinite;
+            }
+              
+            @keyframes moveGradient {
+                0% {
+                    background-position: 0% 0%;
+                }
+                100% {
+                    background-position: -200% 0%;
+                }
+            }
+        }
+        footer.flash-text{
+            position: absolute;
+            bottom: 20vh;
+            animation: flash 1s infinite ease;
+            .mobile-version{
+                display: none;
+            }
+            @media screen and (max-width: 700px) {
+                .mobile-version{
+                    display: block;
+                }
+                .desktop-version{
+                    display: none;
+                }
+            }
+        }
+    }
+    
+}
+
+@keyframes flash {
+    50%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
