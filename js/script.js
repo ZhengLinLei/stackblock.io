@@ -12,8 +12,8 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
-    [30, 100, 70],
-    [200, 100, 60]
+    [30, 50, 70],
+    [200, 80, 60]
 ];
 
 // DEFINE BOX SIZE
