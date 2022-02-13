@@ -391,8 +391,10 @@ window.addEventListener('load', ()=>{
         
     }
 
-    window.addEventListener('touchstart', fncStart);
-    window.addEventListener('click', fncStart);
+
+    let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+    let eventType = supportsTouch ? 'touchstart' : 'click';
+    window.addEventListener(eventType, fncStart); // ADD FNC
 });
 
 
