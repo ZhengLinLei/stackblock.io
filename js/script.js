@@ -12,7 +12,7 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
-    [30, 50, 70],
+    [Math.floor(Math.random()*360), 50, 70],
     [200, 80, 60]
 ];
 
@@ -194,6 +194,7 @@ window.addEventListener('load', ()=>{
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(10, 20, 0);
+
     scene.add(directionalLight);
 
     // CAMERA
