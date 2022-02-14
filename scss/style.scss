@@ -30,6 +30,19 @@ body{
             top: 40px;
         }
     }
+    .combo-extra-point{
+        position: fixed;
+        top: 200px;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: .3s;
+        opacity: 0;
+
+        
+        &.active{
+            animation: extraPointFlash 1s ease-out;
+        }
+    }
     .combo-strike{
         font-weight: 800;
         font-size: 54px;
@@ -119,5 +132,16 @@ body{
     }
     100%{
         opacity: 1;
+    }
+}
+
+@keyframes extraPointFlash {
+    60%{
+        top: 100px;
+        opacity: 1;
+    }
+    100%{
+        top: 90px;
+        opacity: 0;
     }
 }

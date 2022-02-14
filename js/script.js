@@ -46,6 +46,7 @@ window.addEventListener('load', ()=>{
     let pointDom = document.querySelector('.point-result');
     let scoreTab = document.querySelector('.score-tab');
     let comboStrike = document.querySelector('.combo-strike');
+    let comboExtraPoint = document.querySelector('.combo-extra-point');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
@@ -285,6 +286,10 @@ window.addEventListener('load', ()=>{
                         // DON'T ADD COFFETIES BECAUSE THE ANIMATION CAUSE LAG
 
                         // IN ADDITION CAN BE ADDED +10 ANIMATION
+                        comboExtraPoint.classList.add('active');
+                        setTimeout(()=>{
+                            comboExtraPoint.classList.remove('active'); // HAS GOT CSS TRANSITION DELAY
+                        }, 1100);
 
                         GAME_.score += 10;
                     }
