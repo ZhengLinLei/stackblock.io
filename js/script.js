@@ -4,6 +4,7 @@ let GAME_ = {
     end: false,
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
     score: 0,
+    combo: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
     designPalette: 0
@@ -12,7 +13,7 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
-    [30, 50, 70],
+    [30, 70, 50],
     [200, 80, 60]
 ];
 
@@ -44,6 +45,7 @@ window.addEventListener('load', ()=>{
     let resultTabDom = document.querySelector('.result-area');
     let pointDom = document.querySelector('.point-result');
     let scoreTab = document.querySelector('.score-tab');
+    let comboStrike = document.querySelector('.combo-strike');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
@@ -164,8 +166,10 @@ window.addEventListener('load', ()=>{
 
         stackBoxArr = [], outBoxArr = [];
 
-        // POINTS
+        // POINTS AND COMBO
         GAME_.score = 0;
+        GAME_.combo = 0;
+
 
         // FIRST LAYER
         addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
@@ -271,6 +275,33 @@ window.addEventListener('load', ()=>{
             let inbox = outbox - alpha;
 
             if(inbox > 0){
+
+                const boxRelation = inbox / outbox; // 0 to 1
+                // CHECK IF THE OUTBOX RELACTION IT'S LESS THAN 0.1
+                if(boxRelation >= 0.9){
+                    // ADD COMBO
+                    if([9, 19, 29, 39, 49].includes(GAME_.combo)){// ADD 10 EXTRA POINTS IN EVERY x10 COMBOS
+                        playConfetti(); // YEAAAAAAAAAAAAAAAH
+
+                        GAME_.score += 10;
+                    }
+
+                    GAME_.combo += 1;
+
+                    // SHOW TEXT
+                    comboStrike.innerHTML = `x${GAME_.combo}`;
+                    comboStrike.classList.add('open'); // VISIBLE
+
+                    setTimeout(()=>{
+                        comboStrike.classList.remove('open'); // HAS GOT CSS TRANSITION DELAY
+                    }, 700);
+
+                }else if(GAME_.combo){
+                    // REMOVE THE COMBO
+                    GAME_.combo = 0; // SAD :(
+                }
+
+
                 // CUT TOP LAYER
                 newWidth = (lastDirection === "x")? inbox : lastLayer.width;
                 newDepth = (lastDirection === "z")? inbox : lastLayer.depth;
@@ -278,7 +309,7 @@ window.addEventListener('load', ()=>{
                 lastLayer.width = newWidth;
                 lastLayer.depth = newDepth;
 
-                lastLayer.threejs.scale[lastDirection] = inbox / outbox;
+                lastLayer.threejs.scale[lastDirection] = boxRelation; // SCALE TO BOX RELATION
 
                 // MOVE TO POSITIVE IF THE BOX IS MOVING IN POSITIVE AND NEGATIVE IF IT'S MOVING IN NEGATIVE RESPECT THE LAST ONE 
                 lastLayer.threejs.position[lastDirection] -= delta / 2; 

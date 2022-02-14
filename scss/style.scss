@@ -30,6 +30,21 @@ body{
             top: 40px;
         }
     }
+    .combo-strike{
+        font-weight: 800;
+        font-size: 54px;
+        position: fixed;
+        top: 50vh;
+        left: 50vw;
+        transform: translate(-50%, 15vh);
+        transition: .3s;
+        opacity: 0;
+
+        &.open{
+            transform: translate(-50%, 10vh) scale(1.7) rotate(-10deg);
+            opacity: 1;
+        }
+    }
     .result-area{
         &.disable{
             opacity: 0;
