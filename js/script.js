@@ -279,7 +279,7 @@ window.addEventListener('load', ()=>{
 
                 const boxRelation = inbox / outbox; // 0 to 1
                 // CHECK IF THE OUTBOX RELACTION IT'S LESS THAN 0.1
-                if(boxRelation >= 0.2){
+                if(boxRelation >= 0.9){
                     // ADD COMBO
                     if([9, 19, 29, 39, 49].includes(GAME_.combo)){// ADD 10 EXTRA POINTS IN EVERY x10 COMBOS
                         // playConfetti(30, 50); // YEAAAAAAAAAAAAAAAH
