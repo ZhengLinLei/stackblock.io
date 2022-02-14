@@ -278,10 +278,13 @@ window.addEventListener('load', ()=>{
 
                 const boxRelation = inbox / outbox; // 0 to 1
                 // CHECK IF THE OUTBOX RELACTION IT'S LESS THAN 0.1
-                if(boxRelation >= 0.9){
+                if(boxRelation >= 0.2){
                     // ADD COMBO
                     if([9, 19, 29, 39, 49].includes(GAME_.combo)){// ADD 10 EXTRA POINTS IN EVERY x10 COMBOS
-                        playConfetti(); // YEAAAAAAAAAAAAAAAH
+                        // playConfetti(30, 50); // YEAAAAAAAAAAAAAAAH
+                        // DON'T ADD COFFETIES BECAUSE THE ANIMATION CAUSE LAG
+
+                        // IN ADDITION CAN BE ADDED +10 ANIMATION
 
                         GAME_.score += 10;
                     }
@@ -430,8 +433,8 @@ window.addEventListener('load', ()=>{
 
 
 // PARTY FNC
-function playConfetti(){
+function playConfetti(min, max){
     party.confetti(party.Rect.fromScreen(), {
-        count: party.variation.range(60, 80),
+        count: party.variation.range(min?min:60, max?max:80),
     });
 }
