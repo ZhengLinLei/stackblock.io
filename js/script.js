@@ -443,3 +443,32 @@ function playConfetti(min, max){
         count: party.variation.range(min?min:60, max?max:80),
     });
 }
+
+// ALPHABOT v1.0 INTERNAL BOT FOR TESTING
+function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    setInterval(()=>{
+        const lastLayer = stackBoxArr[stackBoxArr.length -1];
+                const previousLayer = stackBoxArr[stackBoxArr.length -2];
+    
+            // LAST LAYER DIRECTION
+            let lastDirection = lastLayer.direction;
+    
+            // CALCULATE OUTBOX 
+            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
+            let alpha = Math.abs(delta); // GET POSITIVE NUM
+    
+            // CALCULATE OUTBOX WIDTH DEPTH
+            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
+            let inbox = outbox - alpha;
+            
+            const boxRelation = inbox / outbox; // 0 to 1
+            if(boxRelation >= (precision?precision:0.9)){
+                document.body.click();
+                
+                if(output){
+                    console.log(boxRelation); // OUTPUT
+                }
+            }
+    
+    }, timer?timer:20);
+}
