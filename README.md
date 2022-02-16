@@ -1,9 +1,6 @@
 <h1 align="center">StackBlock.io  v.1.0</h1>
 <br>
 <br>
-
-
-
 <br>
 <p align="center">
     <img src="./docs/intro.png" alt="intro pic" />
