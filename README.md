@@ -1,8 +1,3 @@
-# STACKBLOCK.IO v1.7.1
-
-Live preview [here](https://zhenglinlei.github.io/stackblock.io/)
-(In construction)
-
 <h1 align="center">StackBlock.io  v.1.0</h1>
 <br>
 <br>
