@@ -2,6 +2,9 @@
 <br>
 <br>
 <br>
+
+Live web preview [here](https://zhenglinlei.github.io/stackblock.io)
+
 <p align="center">
     <img src="./docs/intro.png" alt="intro pic" />
 </p>
