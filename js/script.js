@@ -434,6 +434,15 @@ window.addEventListener('load', ()=>{
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'click';
     window.addEventListener(eventType, fncStart); // ADD FNC
+
+    // PC Version
+    // Run fncStart function when the user press space key
+    window.addEventListener('keydown', function(e){
+        e.defaultPrevented();
+        if(e.keyCode === 32){
+            fncStart();
+        }
+    });
 });
 
 
