@@ -437,12 +437,12 @@ window.addEventListener('load', ()=>{
 
     // PC Version
     // Run fncStart function when the user press space key
-    window.addEventListener('keydown', function(e){
-        e.defaultPrevented();
-        if(e.keyCode === 32){
-            fncStart();
-        }
-    });
+    // window.addEventListener('keydown', function(e){
+    //     e.defaultPrevented();
+    //     if(e.keyCode === 32){
+    //         fncStart();
+    //     }
+    // });
 });
 
 
