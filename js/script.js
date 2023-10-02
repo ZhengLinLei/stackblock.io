@@ -435,13 +435,25 @@ window.addEventListener('load', ()=>{
     let eventType = supportsTouch ? 'touchstart' : 'click';
     window.addEventListener(eventType, fncStart); // ADD FNC
 
+    let keyFree = true;
     // PC Version
     // Run fncStart function when the user press space key
     window.addEventListener('keydown', function(e){
-        e.preventDefault();
 
-        if(e.keyCode === 32 || e.keyCode === 40){
-            fncStart();
+        // Space key
+        if(e.keyCode === 32 || e.keyCode === 40 || e.key === " "){
+            e.preventDefault();
+            if(keyFree){
+                keyFree = false;
+                fncStart();
+            }
+        }
+    });
+
+    // Liberate the key to be pressed again
+    window.addEventListener('keyup', function(e){
+        if(e.keyCode === 32 || e.keyCode === 40 || e.key === " "){
+            keyFree = true;
         }
     });
 });
