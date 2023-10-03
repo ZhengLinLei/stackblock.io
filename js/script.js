@@ -50,8 +50,8 @@ window.addEventListener('load', ()=>{
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
-    function changeBackground(){
-        scene.background = new THREE.Color(hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length*4), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]));
+    function changeBackground(i){
+        scene.background = new THREE.Color(hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]));
     }
     // EXTERNAL FNC
     function printPoints(num){
@@ -171,6 +171,8 @@ window.addEventListener('load', ()=>{
         GAME_.score = 0;
         GAME_.combo = 0;
 
+        // RESET BG
+        changeBackground();
 
         // FIRST LAYER
         addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
@@ -352,6 +354,10 @@ window.addEventListener('load', ()=>{
                 addLayer(x, z, newWidth, newDepth, direction);
                 // ADD ONE POINT
                 GAME_.score++;
+
+                // CHANGE BG
+                changeBackground();
+
                 printPoints(GAME_.score);
 
             }else{
