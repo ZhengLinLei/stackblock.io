@@ -438,7 +438,7 @@ window.addEventListener('load', ()=>{
 
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
-    let eventType = supportsTouch ? 'touchstart' : 'click';
+    let eventType = supportsTouch ? 'touchstart' : 'mousedown';
     window.addEventListener(eventType, fncStart); // ADD FNC
 
     let keyFree = true;
