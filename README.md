@@ -2,7 +2,7 @@
 >
 > Collab with us [ISSUES](https://github.com/ZhengLinLei/stackblock.io/issues) and FORK
 
-<h1 align="center">StackBlock.io  v.1.0.1</h1>
+<h1 align="center">StackBlock.io</h1>
 <br>
 <br>
 <br>
