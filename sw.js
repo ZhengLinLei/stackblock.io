@@ -1,5 +1,5 @@
 //GET VERSION
-const CACHE_VERSION = "1.0.0";
+const CACHE_VERSION = "1.0.4";
 const CURRENT_CACHE = `sbio-v${CACHE_VERSION}`;
 let filesToCache = [
   "./manifest.json",
@@ -65,11 +65,9 @@ self.addEventListener('fetch', event => {
             return (response) ? response : fetch(event.request);
           })
       })
-      .catch(err => {
-        return caches.open(CURRENT_CACHE)
-          .then(cache => {
-            return cache.match('./offline');
-          })
+      .catch(e => {
+        console.log("Error getting resource: ", e);
+        return fetch(event.request);
       })
   );
   updateCache(event.request);

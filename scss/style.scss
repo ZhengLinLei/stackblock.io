@@ -123,7 +123,72 @@ body{
             }
         }
     }
-    
+
+    #pwa-install {
+        $image-size: 60px;
+        //
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100%);
+        background-color: white;
+        z-index: 999;
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
+        justify-content: space-between;
+        grid-gap: 20px;
+        width: 250px;
+        height: $image-size;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        &.display {
+            display: flex;
+            // scroll down animation
+            animation: scrollDown .3s ease forwards;
+        }
+        .pwa-install-action {
+            flex: 1;
+            justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+        }
+        .pwa-install-text > *{
+            font-size: 12px;
+            color: black;
+            text-align: start;
+
+            &.pwa-install-description {
+                font-size: 10px;
+                color: #999;
+            }
+        }
+        .pwa-install-icon > img {
+            width: $image-size;
+            border-radius: 5px;
+            height: $image-size;
+        }
+        .pwa-install-button {
+            display: flex;
+            justify-content: end;
+            button {
+                // Minimal design for install button
+                border: none;
+                background-color: #42c2f1;
+                color: white;
+                padding: 7px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 10px;
+                transition: .3s;
+                font-weight: bold;
+
+                &:hover {
+                    background-color: #5fc581;
+                }
+            }
+        }
+    }
 }
 
 @keyframes flash {
@@ -143,5 +208,11 @@ body{
     100%{
         top: 90px;
         opacity: 0;
+    }
+}
+
+@keyframes scrollDown {
+    100% {
+        transform: translateX(-50%) translateY(0%);
     }
 }
