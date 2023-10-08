@@ -1,8 +1,4 @@
-// DEFINE STACK COLOR
-const colorDesign = [
-    [200, 80, 60],
-    [30, 70, 50],
-];
+
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -12,11 +8,15 @@ let GAME_ = {
     combo: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
-    designPalette: Math.floor(Math.random()*(colorDesign.length))
+    designPalette: 0
 }
 
 // ==================================
-
+// DEFINE STACK COLOR
+const colorDesign = [
+    [200, 80, 60],
+    [30, 70, 50],
+];
 
 // DEFINE BOX SIZE
 const boxSize = {
@@ -138,7 +138,7 @@ window.addEventListener('load', ()=>{
     
     // RESET COLISION WORLD AND SCENE
     function reset(){
-        // GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
+        GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
 
         // CAMERA
         camera.position.set(4, 4, 4);
