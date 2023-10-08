@@ -13,8 +13,12 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
+    [120, 80, 60],
     [30, 70, 50],
-    [200, 80, 60]
+    [224, 68, 62],
+    [251, 50, 60],
+    [339, 62, 48],
+    [231, 50, 47]
 ];
 
 // DEFINE BOX SIZE
@@ -137,7 +141,7 @@ window.addEventListener('load', ()=>{
     
     // RESET COLISION WORLD AND SCENE
     function reset(){
-        // GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
+        GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
 
         // CAMERA
         camera.position.set(4, 4, 4);
