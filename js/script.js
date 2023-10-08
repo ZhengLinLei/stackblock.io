@@ -1,3 +1,8 @@
+// DEFINE STACK COLOR
+const colorDesign = [
+    [200, 80, 60],
+    [30, 70, 50],
+];
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -7,15 +12,11 @@ let GAME_ = {
     combo: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
-    designPalette: 0
+    designPalette: Math.floor(Math.random()*(colorDesign.length))
 }
 
 // ==================================
-// DEFINE STACK COLOR
-const colorDesign = [
-    [30, 70, 50],
-    [200, 80, 60]
-];
+
 
 // DEFINE BOX SIZE
 const boxSize = {
