@@ -248,6 +248,8 @@ window.addEventListener('load', ()=>{
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
+            // DISABLE PWA IF EXIST
+            document.querySelector('#pwa-install').classList.remove('display');
 
             // DISABLE NEW RECORD
             if(GAME_.newRecord){
@@ -399,6 +401,10 @@ window.addEventListener('load', ()=>{
                     GAME_.newRecord = true;
                 }
 
+                // CHECK PWA INSTALLATION (1.0.4 version)
+                if (enableDownload) {
+                    document.querySelector('#pwa-install').classList.add('display');
+                }
             }
         }
     }
@@ -439,7 +445,12 @@ window.addEventListener('load', ()=>{
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
-    window.addEventListener(eventType, fncStart); // ADD FNC
+    window.addEventListener(eventType, e => {
+        if (!e.target.className.split(' ').some((c) => { return /pwa-.*/.test(c); })) {
+            e.preventDefault();
+            fncStart();
+        }
+    }); // ADD FNC
 
     let keyFree = true;
     // PC Version

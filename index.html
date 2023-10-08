@@ -45,12 +45,28 @@
         </footer>
     </main>
 
+    <!-- PWA installer -->
+    <section id="pwa-install" class="pwa-install">
+        <div class="pwa-install-icon">
+            <img class="pwa-install-icon-png" src="./source/ico.png" alt="StackBlock.io">
+        </div>
+        <div class="pwa-install-action">
+            <div class="pwa-install-text">
+                <p class="pwa-install-title">StackBlock.io minigame</p>
+                <p class="pwa-install-description">Download the APP</p>
+            </div>
+            <div class="pwa-install-button">
+                <button id="pwa-install-btn" class="pwa-install-btn">Install</button>
+            </div>
+        </div>
+    </section>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js" integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
     <script src="./js/script.min.js"></script>
     <script>
-        const V = 1.0
+        const V = "1.0.4";
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register(`./sw.js?v=${V}`)
@@ -64,7 +80,7 @@
             });
         }
     </script>
-    <script src="./js/pwa.js"></script>
+    <script src="./js/pwa.min.js"></script>
     <!-- <script src="./js/script.js"></script> -->
 </body>
 </html>
