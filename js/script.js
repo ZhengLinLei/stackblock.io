@@ -1,4 +1,3 @@
-
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -14,8 +13,12 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
-    [200, 80, 60],
+    [120, 80, 60],
     [30, 70, 50],
+    [224, 68, 62],
+    [251, 50, 60],
+    [339, 62, 48],
+    [231, 50, 47]
 ];
 
 // DEFINE BOX SIZE
