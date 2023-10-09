@@ -13,8 +13,8 @@ let GAME_ = {
 // ==================================
 // DEFINE STACK COLOR
 const colorDesign = [
-    [120, 80, 60],
     [30, 70, 50],
+    [120, 80, 60],
     [224, 68, 62],
     [251, 50, 60],
     [339, 62, 48],
@@ -451,7 +451,6 @@ window.addEventListener('load', ()=>{
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
     window.addEventListener(eventType, e => {
         if (!e.target.className.split(' ').some((c) => { return /pwa-.*/.test(c); })) {
-            e.preventDefault();
             fncStart();
         }
     }); // ADD FNC
