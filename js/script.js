@@ -337,18 +337,21 @@ window.addEventListener('load', ()=>{
                 lastLayer.cannonjs.shapes = [];
                 lastLayer.cannonjs.addShape(shape);
 
-                // OUTBOX FALLING =============
-                let outboxCenter = Math.sign(delta) * ((inbox / 2) + (alpha / 2)); // ALSO YOU CAN USE Math.sign(delta) = delta + (alpha-1)
-                // THIS VARIABLE CALCULATE THE POSITION OF THE OUTBOX
-                // THE MIDDLE OF THE OUTBOX SIZE + MIDDLE OF THE INBOX SIZE = OUTBOX CENTER POSITION
-                const outboxPos = {
-                    x: (lastDirection === "x")? lastLayer.threejs.position.x + outboxCenter : lastLayer.threejs.position.x,
-                    z: (lastDirection === "z")? lastLayer.threejs.position.z + outboxCenter : lastLayer.threejs.position.z,
-                    width: (lastDirection === "x")? alpha : newWidth,
-                    depth: (lastDirection === "z")? alpha: newDepth
+                //CHECK THAT THE OUTBOX IS NOT TOO SMALL
+                if(alpha >= 0.01){
+                    // OUTBOX FALLING =============
+                    let outboxCenter = Math.sign(delta) * ((inbox / 2) + (alpha / 2)); // ALSO YOU CAN USE Math.sign(delta) = delta + (alpha-1)
+                    // THIS VARIABLE CALCULATE THE POSITION OF THE OUTBOX
+                    // THE MIDDLE OF THE OUTBOX SIZE + MIDDLE OF THE INBOX SIZE = OUTBOX CENTER POSITION
+                    const outboxPos = {
+                        x: (lastDirection === "x")? lastLayer.threejs.position.x + outboxCenter : lastLayer.threejs.position.x,
+                        z: (lastDirection === "z")? lastLayer.threejs.position.z + outboxCenter : lastLayer.threejs.position.z,
+                        width: (lastDirection === "x")? alpha : newWidth,
+                        depth: (lastDirection === "z")? alpha: newDepth
+                    }
+                    // ADD OUTBOX
+                    addOutBox(outboxPos.x, outboxPos.z, outboxPos.width, outboxPos.depth);
                 }
-                // ADD OUTBOX
-                addOutBox(outboxPos.x, outboxPos.z, outboxPos.width, outboxPos.depth);
                 // NEW LAYER ==================
                 let x = (lastDirection === "x")? lastLayer.threejs.position.x : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
                 let z = (lastDirection === "z")? lastLayer.threejs.position.z : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
