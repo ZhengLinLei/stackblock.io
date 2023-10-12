@@ -284,10 +284,9 @@ window.addEventListener('load', ()=>{
             let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
             let inbox = outbox - alpha;
             if(inbox > 0){
-
                 const boxRelation = inbox / outbox; // 0 to 1
-                // CHECK IF THE OUTBOX RELACTION IT'S LESS THAN 0.1
-                if(boxRelation >= 0.9){
+                // CHECK IF THE BOX IS CLOSE TO THE CENTER
+                if(alpha < 0.2){
                     // ADD COMBO
                     if([9, 19, 29, 39, 49].includes(GAME_.combo)){// ADD 10 EXTRA POINTS IN EVERY x10 COMBOS
                         // playConfetti(30, 50); // YEAAAAAAAAAAAAAAAH
@@ -507,7 +506,7 @@ function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
         let inbox = outbox - alpha;
             
         const boxRelation = inbox / outbox; // 0 to 1
-        if(boxRelation >= (precision?precision:0.99)){
+        if(boxRelation >= (precision?precision:0.95)){
             fncStart();
             if(output){
                 console.log(boxRelation); // OUTPUT
