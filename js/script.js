@@ -1,3 +1,4 @@
+const log = console.log;
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -282,7 +283,6 @@ window.addEventListener('load', ()=>{
             // CALCULATE OUTBOX WIDTH DEPTH
             let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
             let inbox = outbox - alpha;
-
             if(inbox > 0){
 
                 const boxRelation = inbox / outbox; // 0 to 1
@@ -338,18 +338,21 @@ window.addEventListener('load', ()=>{
                 lastLayer.cannonjs.shapes = [];
                 lastLayer.cannonjs.addShape(shape);
 
-                // OUTBOX FALLING =============
-                let outboxCenter = Math.sign(delta) * ((inbox / 2) + (alpha / 2)); // ALSO YOU CAN USE Math.sign(delta) = delta + (alpha-1)
-                // THIS VARIABLE CALCULATE THE POSITION OF THE OUTBOX
-                // THE MIDDLE OF THE OUTBOX SIZE + MIDDLE OF THE INBOX SIZE = OUTBOX CENTER POSITION
-                const outboxPos = {
-                    x: (lastDirection === "x")? lastLayer.threejs.position.x + outboxCenter : lastLayer.threejs.position.x,
-                    z: (lastDirection === "z")? lastLayer.threejs.position.z + outboxCenter : lastLayer.threejs.position.z,
-                    width: (lastDirection === "x")? alpha : newWidth,
-                    depth: (lastDirection === "z")? alpha: newDepth
+                //CHECK THAT THE OUTBOX IS NOT TOO SMALL
+                if(alpha >= 0.01){
+                    // OUTBOX FALLING =============
+                    let outboxCenter = Math.sign(delta) * ((inbox / 2) + (alpha / 2)); // ALSO YOU CAN USE Math.sign(delta) = delta + (alpha-1)
+                    // THIS VARIABLE CALCULATE THE POSITION OF THE OUTBOX
+                    // THE MIDDLE OF THE OUTBOX SIZE + MIDDLE OF THE INBOX SIZE = OUTBOX CENTER POSITION
+                    const outboxPos = {
+                        x: (lastDirection === "x")? lastLayer.threejs.position.x + outboxCenter : lastLayer.threejs.position.x,
+                        z: (lastDirection === "z")? lastLayer.threejs.position.z + outboxCenter : lastLayer.threejs.position.z,
+                        width: (lastDirection === "x")? alpha : newWidth,
+                        depth: (lastDirection === "z")? alpha: newDepth
+                    }
+                    // ADD OUTBOX
+                    addOutBox(outboxPos.x, outboxPos.z, outboxPos.width, outboxPos.depth);
                 }
-                // ADD OUTBOX
-                addOutBox(outboxPos.x, outboxPos.z, outboxPos.width, outboxPos.depth);
                 // NEW LAYER ==================
                 let x = (lastDirection === "x")? lastLayer.threejs.position.x : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
                 let z = (lastDirection === "z")? lastLayer.threejs.position.z : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
@@ -504,7 +507,7 @@ function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
         let inbox = outbox - alpha;
             
         const boxRelation = inbox / outbox; // 0 to 1
-        if(boxRelation >= (precision?precision:0.9)){
+        if(boxRelation >= (precision?precision:0.99)){
             fncStart();
             if(output){
                 console.log(boxRelation); // OUTPUT
