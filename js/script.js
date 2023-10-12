@@ -507,7 +507,7 @@ function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
         let inbox = outbox - alpha;
             
         const boxRelation = inbox / outbox; // 0 to 1
-        if(boxRelation >= (precision?precision:0.9)){
+        if(boxRelation >= (precision?precision:0.99)){
             fncStart();
             if(output){
                 console.log(boxRelation); // OUTPUT
