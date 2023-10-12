@@ -39,7 +39,7 @@ const cameraPos = {
 }
 
 // DEFINE VARIABLES
-let world, scene, camera, renderer;
+let world, scene, camera, renderer, fncStart;
 // STACK ARR
 let stackBoxArr = [], outBoxArr = [];
 
@@ -231,7 +231,7 @@ window.addEventListener('load', ()=>{
     /*===============================
     =  GAME CORE
     ================================*/
-    const fncStart = ()=>{
+    fncStart = ()=>{
 
         // ACTIVE GAME STATUS
         if(!GAME_.status){
@@ -489,7 +489,6 @@ function playConfetti(min, max){
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
     let botTimer = setInterval(()=>{
-        
         const lastLayer = stackBoxArr[stackBoxArr.length -1];
         const previousLayer = stackBoxArr[stackBoxArr.length -2];
     
@@ -506,8 +505,7 @@ function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
             
         const boxRelation = inbox / outbox; // 0 to 1
         if(boxRelation >= (precision?precision:0.9)){
-            document.body.click();
-                
+            fncStart();
             if(output){
                 console.log(boxRelation); // OUTPUT
             }
