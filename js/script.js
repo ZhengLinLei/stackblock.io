@@ -1,4 +1,4 @@
-const log = console.log;
+// const log = console.log;
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -8,7 +8,7 @@ let GAME_ = {
     combo: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
-    designPalette: 0
+    designPalette: 6
 }
 
 // ==================================
@@ -19,7 +19,8 @@ const colorDesign = [
     [224, 68, 62],
     [251, 50, 60],
     [339, 62, 48],
-    [231, 50, 47]
+    [231, 50, 47],
+    [165, 30, 68]
 ];
 
 // DEFINE BOX SIZE
@@ -183,6 +184,7 @@ window.addEventListener('load', ()=>{
         addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
         
     }
+
     // =============================================
     // WORLD DEFINE
     world = new CANNON.World();
@@ -228,7 +230,6 @@ window.addEventListener('load', ()=>{
     // DISPLAY
     document.body.appendChild(renderer.domElement);
 
-    //=====================================
     /*===============================
     =  GAME CORE
     ================================*/
@@ -242,6 +243,9 @@ window.addEventListener('load', ()=>{
                 // ANIMATION FRAME 60fps
                 renderer.setAnimationLoop(animation);
                 GAME_.active = true; // ACTIVE GAME
+
+                // CHANGE BEST_SCORE TO SCORE
+                scoreTab.querySelector('.score').innerHTML = "SCORE";
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
