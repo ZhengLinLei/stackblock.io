@@ -8,7 +8,18 @@ let GAME_ = {
     combo: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
-    designPalette: 6
+    designPalette: 0,
+    //
+    // Stackoverflow: https://stackoverflow.com/questions/30628064/how-to-toggle-preservedrawingbuffer-in-three-js
+    // Stackoverflow: https://stackoverflow.com/a/30647502
+    screenshot: {
+        enable: false,
+        frames: 0,
+        // Take screenshot after x frames 
+        callback: null,
+        blob: null
+        // Image content buffer
+    }, // TO TAKE SCREENSHOT IN RENDER [enable:boolean, callback:object]
 }
 
 // ==================================
@@ -53,6 +64,10 @@ window.addEventListener('load', ()=>{
     let scoreTab = document.querySelector('.score-tab');
     let comboStrike = document.querySelector('.combo-strike');
     let comboExtraPoint = document.querySelector('.combo-extra-point');
+    // EVENT LAYER DOM
+    let eventLayer = document.querySelector('#click-event');
+    // RECORD SHARE
+    let recordShare = document.querySelector('#record-share');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
@@ -141,7 +156,7 @@ window.addEventListener('load', ()=>{
         return `#${f(0)}${f(8)}${f(4)}`;
     }
     
-    // RESET COLISION WORLD AND SCENE
+    // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
         GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
 
@@ -182,7 +197,12 @@ window.addEventListener('load', ()=>{
 
         // FIRST LAYER
         addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
-        
+
+        // DISABLE PWA IF EXIST
+        document.querySelector('#pwa-install').classList.remove('display');
+
+        // REMOVE NEW RECORD SHARE
+        recordShare.classList.remove('display');
     }
 
     // =============================================
@@ -223,10 +243,15 @@ window.addEventListener('load', ()=>{
     camera.lookAt(0, 0, 0);
 
     // RENDER SCENE
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer(
+        { 
+            antialias: true,
+            // preserveDrawingBuffer: true 
+        });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
+    renderer.domElement.id = "Stackblock";
     // DISPLAY
     document.body.appendChild(renderer.domElement);
 
@@ -257,8 +282,6 @@ window.addEventListener('load', ()=>{
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
-            // DISABLE PWA IF EXIST
-            document.querySelector('#pwa-install').classList.remove('display');
 
             // DISABLE NEW RECORD
             if(GAME_.newRecord){
@@ -409,12 +432,18 @@ window.addEventListener('load', ()=>{
 
                     // ACTIVE RECORD MODE
                     GAME_.newRecord = true;
+
+                    GAME_.screenshot.callback = img => {
+                        recordShare.replaceChild(img, recordShare.querySelector('img'));
+                        // SHOW ANIMATION: SHAKY SHAKY SHAKIRA
+                        recordShare.classList.add('display');
+                    }
+                    GAME_.screenshot.enable = true;
                 }
 
                 // CHECK PWA INSTALLATION (1.0.4 version)
-                if (enableDownload) {
+                if (enableDownload) 
                     document.querySelector('#pwa-install').classList.add('display');
-                }
             }
         }
     }
@@ -449,17 +478,70 @@ window.addEventListener('load', ()=>{
         
         updatePhisics();
         renderer.render(scene, camera);
+
+        // CHECK IF CLIENT REQUESTED TO TAKE A SCREENSHOT
+        // This section of code must be executed after renderer.render(scene, camera) to avoid buffer cleaning
+        // Once the canvas(webgl2) buffer has been cleaned, it can not take screenshot anymore.
+        if (GAME_.screenshot.enable) {
+            // TAKE THE SCREENSHOT AFTER 5 FRAMES FOR MORE PRECISE IMAGE STATUS
+            if(GAME_.screenshot.frames == 5) {
+                // CREATE A EXTRA CANVAS
+                DrawCanvasCopy(renderer.domElement,
+                    ctx => {
+                        // BG
+                        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        // TEXT
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = '32px monospace';
+
+                        var textString = "NEW RECORD",
+                            textWidth = ctx.measureText(textString).width;
+
+
+                        ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height / 2 - 100);
+                        
+                        // RECORD
+                        ctx.font = 'bold 64px monospace';
+
+                        textString = GAME_.score;
+                        textWidth = ctx.measureText(textString).width;
+
+                        ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height/ 2 + 50);
+                        
+                    },
+                    blob => {
+                        const img = document.createElement("img");
+                        const url = URL.createObjectURL(blob);
+
+                        img.onload = () => {
+                            // no longer need to read the blob so it is revoked
+                            URL.revokeObjectURL(url);
+                        };
+
+                        img.src = url;
+
+                        // SAVE BLOB
+                        GAME_.screenshot.blob = blob;
+
+                        GAME_.screenshot.callback(img);
+                    });
+
+                // DISABLE OPTION, IF THE PROCESS HAS SUCCESS OF FAILED SHOULD DISABLE.
+                // OTHERWISE WITH THE DELAY OF THE CALLBACK THE FUNCTION WILL BE CALLED MULTIPLE TIMES
+                GAME_.screenshot.enable = false;
+                GAME_.screenshot.frames = 0;
+            } else {
+                GAME_.screenshot.frames++;
+            }
+        }
         
     }
 
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
-    window.addEventListener(eventType, e => {
-        if (!e.target.className.split(' ').some((c) => { return /pwa-.*/.test(c); })) {
-            fncStart();
-        }
-    }); // ADD FNC
+    eventLayer.addEventListener(eventType, fncStart); // ADD FNC
 
     let keyFree = true;
     // PC Version
@@ -482,6 +564,14 @@ window.addEventListener('load', ()=>{
             keyFree = true;
         }
     });
+
+    // SHARE RECORD
+    recordShare.addEventListener(eventType, async () => {
+        if( ! await Blob2Share(GAME_.screenshot.blob)){
+            Blob2Download(GAME_.screenshot.blob);
+        }
+
+    })
 });
 
 

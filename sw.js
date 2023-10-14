@@ -13,7 +13,8 @@ let filesToCache = [
   "https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js",
   "./js/script.min.js",
   `./sw.js?v=${CACHE_VERSION}`,
-  "./js/pwa.min.js",
+  "./js/pwa/pwa.min.js",
+  // "./js/lib/png2share.min.js",
   "./index.html",
   "./",
 ];

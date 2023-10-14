@@ -18,10 +18,13 @@ window.addEventListener("load", () => {
             if (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.navigator.standalone === true || localStorage.getItem('PWA_installed') === "true") {
                 localStorage.setItem("PWA_installed", 'true');
                 activeDownload = localStorage.getItem("PWA_installed");
+            } else {
+                localStorage.removeItem("PWA_installed");
+                activeDownload = false;
             }
         }
 
-        if(activeDownload || activeDownload == 'true') {
+        if(!activeDownload || activeDownload == 'false') {
             enableDownload = true;
 
             installBtn.addEventListener("click", () => {

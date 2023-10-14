@@ -130,6 +130,14 @@ body{
         }
     }
 
+    #click-event {
+        width: 100vw;
+        height: 100vh;
+        z-index: 2;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
     #pwa-install {
         $image-size: 60px;
         //
@@ -138,7 +146,7 @@ body{
         left: 50%;
         transform: translateX(-50%) translateY(-100%);
         background-color: white;
-        z-index: 999;
+        z-index: 2;
         padding: 10px;
         border-radius: 5px;
         display: none;
@@ -195,6 +203,61 @@ body{
             }
         }
     }
+
+    #record-share {
+        $gadget-size: 35vw;
+        //
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 99;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: white;
+        transition: .5s;
+        display: none;
+        &.display {
+            display: block;
+            animation: jumpShaking 0.5s;
+        }
+        &:hover {
+            transform: translate(-50%, -50%) rotate(-5deg) scale(1.1);
+        }
+        * {
+            color: black;
+        }
+        
+        img {
+            width: $gadget-size;
+            height: $gadget-size;
+            min-width: 140px;
+            min-height: 140px;
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: cover;
+        }
+        // Dektop make it smaller
+        @media screen and (max-height: 700px) {
+            img {
+                width: calc($gadget-size * 0.8);
+                height: calc($gadget-size * 0.8);
+                max-height: 180px;
+                min-width: 180px;
+            }    
+        }
+        // Mobile
+        @media (hover: none) {
+            &.display {
+                animation: jumpShakingTouch 0.5s forwards;
+            }
+        }
+        small {
+            display: block;
+            padding: 10px;
+            font-size: 10px;
+        }
+    }
 }
 
 @keyframes flash {
@@ -221,4 +284,23 @@ body{
     100% {
         transform: translateX(-50%) translateY(0%);
     }
+}
+
+@keyframes jumpShaking {
+    0% { transform: translate(-50%, -50%) }
+    25% { transform: translate(-50%, calc(-50% - 9px)) }
+    35% { transform: translate(-50%, calc(-50% - 9px)) rotate(-5deg) }
+    55% { transform: translate(-50%, calc(-50% - 9px)) rotate(5deg) }
+    65% { transform: translate(-50%, calc(-50% - 9px)) rotate(-5deg) }
+    75% { transform: translate(-50%, calc(-50% - 9px)) rotate(5deg) }
+    100% { transform: translate(-50%, -50%)}
+}
+@keyframes jumpShakingTouch {
+    0% { transform: translate(-50%, -50%) }
+    25% { transform: translate(-50%, calc(-50% - 9px)) }
+    35% { transform: translate(-50%, calc(-50% - 9px)) rotate(-5deg) }
+    55% { transform: translate(-50%, calc(-50% - 9px)) rotate(5deg) }
+    65% { transform: translate(-50%, calc(-50% - 9px)) rotate(-5deg) }
+    75% { transform: translate(-50%, calc(-50% - 9px)) rotate(5deg) }
+    100% { transform: translate(-50%, -50%) rotate(-5deg) scale(1.1)}
 }
