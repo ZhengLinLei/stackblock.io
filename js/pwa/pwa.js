@@ -15,7 +15,8 @@ window.addEventListener("load", () => {
 
         // Check installation
         if(!activeDownload){
-            if (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.navigator.standalone === true || localStorage.getItem('PWA_installed') === "true") {
+            // REMOVED: window.matchMedia('(display-mode: full-screen)').matches  ----> Full-screen doesn't that user has downloaded the PWA
+            if (window.matchMedia('(display-mode: standalone)').matches  || window.navigator.standalone === true || localStorage.getItem('PWA_installed') === "true") {
                 localStorage.setItem("PWA_installed", 'true');
                 activeDownload = localStorage.getItem("PWA_installed");
             } else {

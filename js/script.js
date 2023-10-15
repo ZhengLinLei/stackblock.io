@@ -13,13 +13,21 @@ let GAME_ = {
     // Stackoverflow: https://stackoverflow.com/questions/30628064/how-to-toggle-preservedrawingbuffer-in-three-js
     // Stackoverflow: https://stackoverflow.com/a/30647502
     screenshot: {
+        service: true, // If this service mus be disable, change value to false
         enable: false,
         frames: 0,
         // Take screenshot after x frames 
         callback: null,
         blob: null
         // Image content buffer
-    }, // TO TAKE SCREENSHOT IN RENDER [enable:boolean, callback:object]
+    },
+    botMode: false,
+    zoomOut: {
+        service: true, // If this service must be disable, change value to false
+        enable: false,
+        frames: 0,
+        finished: false
+    },// Zoom out the camera fter every game over
 }
 
 // ==================================
@@ -155,14 +163,28 @@ window.addEventListener('load', ()=>{
         };
         return `#${f(0)}${f(8)}${f(4)}`;
     }
+
+    // CHANGE CAMERA DATA
+    function refreshCameraView() {
+        camera.right = cameraPos.width / cameraPos.size;
+        camera.left = cameraPos.width / -cameraPos.size;
+        camera.top = cameraPos.height / cameraPos.size; 
+        camera.bottom = cameraPos.height / -cameraPos.size;
+        camera.updateProjectionMatrix();
+    }
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
         GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
 
         // CAMERA
+        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        refreshCameraView();
         camera.position.set(4, 4, 4);
         camera.lookAt(0, 0, 0);
+
+        // OPEN zoomOut
+        GAME_.zoomOut.finished = false;
 
         // SCENE & WORLD
         stackBoxArr.forEach(i =>{
@@ -433,13 +455,20 @@ window.addEventListener('load', ()=>{
                     // ACTIVE RECORD MODE
                     GAME_.newRecord = true;
 
-                    GAME_.screenshot.callback = img => {
-                        recordShare.replaceChild(img, recordShare.querySelector('img'));
-                        // SHOW ANIMATION: SHAKY SHAKY SHAKIRA
-                        recordShare.classList.add('display');
+                    if (GAME_.screenshot.service) {
+                        // CALLBACK
+                        GAME_.screenshot.callback = img => {
+                            recordShare.replaceChild(img, recordShare.querySelector('img'));
+                            // SHOW ANIMATION: SHAKY SHAKY SHAKIRA
+                            recordShare.classList.add('display');
+                        }
+                        GAME_.screenshot.enable = true;
                     }
-                    GAME_.screenshot.enable = true;
                 }
+                
+                // ACTIVE ZOOMOUT
+                if (GAME_.zoomOut.service)
+                    GAME_.zoomOut.enable = true;
 
                 // CHECK PWA INSTALLATION (1.0.4 version)
                 if (enableDownload) 
@@ -474,6 +503,20 @@ window.addEventListener('load', ()=>{
             // FINISH LAST BOX ANIMATION
             stackBoxArr[stackBoxArr.length-1].threejs.position.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.position); // EXTRACT ALL DATA TO THREEJS
             stackBoxArr[stackBoxArr.length-1].threejs.quaternion.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.quaternion); // EXTRACT ALL DATA TO THREEJS
+
+            // CHECK IF ZOOM OUT IS ENABLED
+            if (GAME_.zoomOut.enable) {
+                cameraPos.size -= 0.03;
+                refreshCameraView();
+
+                GAME_.zoomOut.frames ++;
+
+                if (GAME_.zoomOut.frames >= 20) {
+                    GAME_.zoomOut.enable = false;
+                    GAME_.zoomOut.frames = 0;
+                    GAME_.zoomOut.finished = true;
+                }
+            }
         }
         
         updatePhisics();
@@ -484,53 +527,74 @@ window.addEventListener('load', ()=>{
         // Once the canvas(webgl2) buffer has been cleaned, it can not take screenshot anymore.
         if (GAME_.screenshot.enable) {
             // TAKE THE SCREENSHOT AFTER 5 FRAMES FOR MORE PRECISE IMAGE STATUS
-            if(GAME_.screenshot.frames == 5) {
-                // CREATE A EXTRA CANVAS
-                DrawCanvasCopy(renderer.domElement,
-                    ctx => {
-                        // BG
-                        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-                        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        // TEXT
-                        ctx.fillStyle = "#ffffff";
-                        ctx.font = '32px monospace';
+            if(GAME_.screenshot.frames >= 5) {
+                // TAKE THE SCREENSHOT AFTER ZOOMOUT, NOT BEFORE OR IN PROCESS
+                if(GAME_.zoomOut.finished) {
+                    // CREATE A EXTRA CANVAS
+                    DrawCanvasCopy(renderer.domElement,
+                        ctx => {
+                            // BG
+                            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            // TEXT
+                            ctx.fillStyle = "#ffffff";
+                            ctx.font = '32px monospace';
 
-                        var textString = "NEW RECORD",
+                            var textString = "NEW RECORD",
+                                textWidth = ctx.measureText(textString).width;
+
+
+                            ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height / 2 - 100);
+                            
+                            // RECORD
+                            ctx.font = 'bold 64px monospace';
+
+                            textString = GAME_.score;
                             textWidth = ctx.measureText(textString).width;
 
+                            ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height/ 2 + 50);
 
-                        ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height / 2 - 100);
-                        
-                        // RECORD
-                        ctx.font = 'bold 64px monospace';
+                            if (GAME_.botMode) {
+                                ctx.save();
+                                ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2 + 50);
+                                ctx.rotate(-Math.PI/8);
+                                // Text
+                                var fontsize = 48;
+                                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                                ctx.font = `bold ${fontsize}px monospace`;
+                                var lineHeight = fontsize * 1.286, padding = 10;
+                                textString = "FAKE"
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, -(textWidth / 2), 0);
+                                // Rect
+                                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                                ctx.lineWidth = 5;
+                                ctx.strokeRect(-(textWidth/2 + padding), -(lineHeight/2 + padding), textWidth + padding*2, lineHeight/2 + padding*1.5);
+                                ctx.restore();
+                            }                            
+                        },
+                        blob => {
+                            const img = document.createElement("img");
+                            const url = URL.createObjectURL(blob);
 
-                        textString = GAME_.score;
-                        textWidth = ctx.measureText(textString).width;
+                            img.onload = () => {
+                                // no longer need to read the blob so it is revoked
+                                URL.revokeObjectURL(url);
+                            };
 
-                        ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height/ 2 + 50);
-                        
-                    },
-                    blob => {
-                        const img = document.createElement("img");
-                        const url = URL.createObjectURL(blob);
+                            img.src = url;
 
-                        img.onload = () => {
-                            // no longer need to read the blob so it is revoked
-                            URL.revokeObjectURL(url);
-                        };
+                            // SAVE BLOB
+                            GAME_.screenshot.blob = blob;
 
-                        img.src = url;
+                            GAME_.screenshot.callback(img);
+                        });
 
-                        // SAVE BLOB
-                        GAME_.screenshot.blob = blob;
-
-                        GAME_.screenshot.callback(img);
-                    });
-
-                // DISABLE OPTION, IF THE PROCESS HAS SUCCESS OF FAILED SHOULD DISABLE.
-                // OTHERWISE WITH THE DELAY OF THE CALLBACK THE FUNCTION WILL BE CALLED MULTIPLE TIMES
-                GAME_.screenshot.enable = false;
-                GAME_.screenshot.frames = 0;
+                    // DISABLE OPTION, IF THE PROCESS HAS SUCCESS OF FAILED SHOULD DISABLE.
+                    // OTHERWISE WITH THE DELAY OF THE CALLBACK THE FUNCTION WILL BE CALLED MULTIPLE TIMES
+                    GAME_.screenshot.enable = false;
+                    GAME_.screenshot.frames = 0;
+                }
             } else {
                 GAME_.screenshot.frames++;
             }
@@ -584,27 +648,33 @@ function playConfetti(min, max){
 
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.botMode = true;
     let botTimer = setInterval(()=>{
-        const lastLayer = stackBoxArr[stackBoxArr.length -1];
-        const previousLayer = stackBoxArr[stackBoxArr.length -2];
-    
-        // LAST LAYER DIRECTION
-        let lastDirection = lastLayer.direction;
-    
-        // CALCULATE OUTBOX 
-        let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
-        let alpha = Math.abs(delta); // GET POSITIVE NUM
-    
-        // CALCULATE OUTBOX WIDTH DEPTH
-        let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
-        let inbox = outbox - alpha;
-            
-        const boxRelation = inbox / outbox; // 0 to 1
-        if(boxRelation >= (precision?precision:0.95)){
-            fncStart();
-            if(output){
-                console.log(boxRelation); // OUTPUT
+        try {
+            const lastLayer = stackBoxArr[stackBoxArr.length -1];
+            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+        
+            // LAST LAYER DIRECTION
+            let lastDirection = lastLayer.direction;
+        
+            // CALCULATE OUTBOX 
+            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
+            let alpha = Math.abs(delta); // GET POSITIVE NUM
+        
+            // CALCULATE OUTBOX WIDTH DEPTH
+            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
+            let inbox = outbox - alpha;
+                
+            const boxRelation = inbox / outbox; // 0 to 1
+            if(boxRelation >= (precision?precision:0.95)){
+                fncStart();
+                if(output){
+                    console.log(boxRelation); // OUTPUT
+                }
             }
+        } catch (e) {
+            // BY DEFAULT START GAME
+            fncStart();
         }
     
     }, timer?timer:20);
