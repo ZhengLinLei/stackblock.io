@@ -1,4 +1,4 @@
-const log = console.log;
+// const log = console.log;
 // GAME DETAILS
 let GAME_ = {
     status: false,
@@ -6,9 +6,29 @@ let GAME_ = {
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
     score: 0,
     combo: 0,
+    gamesPlayed: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
-    designPalette: 0
+    designPalette: 0,
+    //
+    // Stackoverflow: https://stackoverflow.com/questions/30628064/how-to-toggle-preservedrawingbuffer-in-three-js
+    // Stackoverflow: https://stackoverflow.com/a/30647502
+    screenshot: {
+        service: true, // If this service mus be disable, change value to false
+        enable: false,
+        frames: 0,
+        // Take screenshot after x frames 
+        callback: null,
+        blob: null
+        // Image content buffer
+    },
+    botMode: false,
+    zoomOut: {
+        service: true, // If this service must be disable, change value to false
+        enable: false,
+        frames: 0,
+        finished: false
+    },// Zoom out the camera fter every game over
 }
 
 // ==================================
@@ -19,7 +39,8 @@ const colorDesign = [
     [224, 68, 62],
     [251, 50, 60],
     [339, 62, 48],
-    [231, 50, 47]
+    [231, 50, 47],
+    [165, 30, 68]
 ];
 
 // DEFINE BOX SIZE
@@ -52,6 +73,10 @@ window.addEventListener('load', ()=>{
     let scoreTab = document.querySelector('.score-tab');
     let comboStrike = document.querySelector('.combo-strike');
     let comboExtraPoint = document.querySelector('.combo-extra-point');
+    // EVENT LAYER DOM
+    let eventLayer = document.querySelector('#click-event');
+    // RECORD SHARE
+    let recordShare = document.querySelector('#record-share');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
@@ -139,14 +164,28 @@ window.addEventListener('load', ()=>{
         };
         return `#${f(0)}${f(8)}${f(4)}`;
     }
+
+    // CHANGE CAMERA DATA
+    function refreshCameraView() {
+        camera.right = cameraPos.width / cameraPos.size;
+        camera.left = cameraPos.width / -cameraPos.size;
+        camera.top = cameraPos.height / cameraPos.size; 
+        camera.bottom = cameraPos.height / -cameraPos.size;
+        camera.updateProjectionMatrix();
+    }
     
-    // RESET COLISION WORLD AND SCENE
+    // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
         GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
 
         // CAMERA
+        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        refreshCameraView();
         camera.position.set(4, 4, 4);
         camera.lookAt(0, 0, 0);
+
+        // OPEN zoomOut
+        GAME_.zoomOut.finished = false;
 
         // SCENE & WORLD
         stackBoxArr.forEach(i =>{
@@ -181,8 +220,14 @@ window.addEventListener('load', ()=>{
 
         // FIRST LAYER
         addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
-        
+
+        // DISABLE PWA IF EXIST
+        document.querySelector('#pwa-install').classList.remove('display');
+
+        // REMOVE NEW RECORD SHARE
+        recordShare.classList.remove('display');
     }
+
     // =============================================
     // WORLD DEFINE
     world = new CANNON.World();
@@ -221,14 +266,18 @@ window.addEventListener('load', ()=>{
     camera.lookAt(0, 0, 0);
 
     // RENDER SCENE
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer(
+        { 
+            antialias: true,
+            // preserveDrawingBuffer: true 
+        });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
+    renderer.domElement.id = "Stackblock";
     // DISPLAY
     document.body.appendChild(renderer.domElement);
 
-    //=====================================
     /*===============================
     =  GAME CORE
     ================================*/
@@ -242,6 +291,9 @@ window.addEventListener('load', ()=>{
                 // ANIMATION FRAME 60fps
                 renderer.setAnimationLoop(animation);
                 GAME_.active = true; // ACTIVE GAME
+
+                // CHANGE BEST_SCORE TO SCORE
+                scoreTab.querySelector('.score').innerHTML = "SCORE";
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
@@ -253,8 +305,6 @@ window.addEventListener('load', ()=>{
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
-            // DISABLE PWA IF EXIST
-            document.querySelector('#pwa-install').classList.remove('display');
 
             // DISABLE NEW RECORD
             if(GAME_.newRecord){
@@ -397,20 +447,41 @@ window.addEventListener('load', ()=>{
                     playConfetti(); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
-                    GAME_.bestResult = GAME_.score;
-                    window.localStorage.setItem('bestResult', GAME_.score);
+                    if (!GAME_.botMode) {
+                        GAME_.bestResult = GAME_.score;
+                        window.localStorage.setItem('bestResult', GAME_.score);
+                    }
 
                     // SHOW NEWRECORD
                     scoreTab.classList.add('new');
 
                     // ACTIVE RECORD MODE
                     GAME_.newRecord = true;
-                }
 
-                // CHECK PWA INSTALLATION (1.0.4 version)
-                if (enableDownload) {
-                    document.querySelector('#pwa-install').classList.add('display');
+                    if (GAME_.screenshot.service) {
+                        // CALLBACK
+                        GAME_.screenshot.callback = img => {
+                            recordShare.replaceChild(img, recordShare.querySelector('img'));
+                            // SHOW ANIMATION: SHAKY SHAKY SHAKIRA
+                            recordShare.classList.add('display');
+                        }
+                        GAME_.screenshot.enable = true;
+                    }
                 }
+                
+                // ACTIVE ZOOMOUT
+                if (GAME_.zoomOut.service)
+                    GAME_.zoomOut.enable = true;
+
+                let dismissed = localStorage.getItem("installDismissed") ?? false; // Better than localStorage.getItem("installDismissed") || false
+                // CHECK PWA INSTALLATION (1.0.4 version)
+                if (enableDownload && (dismissed == "false" || !dismissed)){
+                    document.querySelector('#pwa-install').classList.add('display');
+                    if(GAME_.gamesPlayed > 0){
+                        document.querySelector('#pwa-dismiss-btn').classList.add('display');
+                    }
+                }
+                GAME_.gamesPlayed++;
             }
         }
     }
@@ -441,21 +512,109 @@ window.addEventListener('load', ()=>{
             // FINISH LAST BOX ANIMATION
             stackBoxArr[stackBoxArr.length-1].threejs.position.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.position); // EXTRACT ALL DATA TO THREEJS
             stackBoxArr[stackBoxArr.length-1].threejs.quaternion.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.quaternion); // EXTRACT ALL DATA TO THREEJS
+
+            // CHECK IF ZOOM OUT IS ENABLED
+            if (GAME_.zoomOut.enable) {
+                cameraPos.size -= 0.02;
+                refreshCameraView();
+
+                GAME_.zoomOut.frames ++;
+
+                if (GAME_.zoomOut.frames >= 20) {
+                    GAME_.zoomOut.enable = false;
+                    GAME_.zoomOut.frames = 0;
+                    GAME_.zoomOut.finished = true;
+                }
+            }
         }
         
         updatePhisics();
         renderer.render(scene, camera);
+
+        // CHECK IF CLIENT REQUESTED TO TAKE A SCREENSHOT
+        // This section of code must be executed after renderer.render(scene, camera) to avoid buffer cleaning
+        // Once the canvas(webgl2) buffer has been cleaned, it can not take screenshot anymore.
+        if (GAME_.screenshot.enable) {
+            // TAKE THE SCREENSHOT AFTER 5 FRAMES FOR MORE PRECISE IMAGE STATUS
+            if(GAME_.screenshot.frames >= 5) {
+                // TAKE THE SCREENSHOT AFTER ZOOMOUT, NOT BEFORE OR IN PROCESS
+                if(GAME_.zoomOut.finished) {
+                    // CREATE A EXTRA CANVAS
+                    DrawCanvasCopy(renderer.domElement,
+                        ctx => {
+                            // BG
+                            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            // TEXT
+                            ctx.fillStyle = "#ffffff";
+                            ctx.font = '32px monospace';
+
+                            var textString = "NEW RECORD",
+                                textWidth = ctx.measureText(textString).width;
+
+
+                            ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height / 2 - 100);
+                            
+                            // RECORD
+                            ctx.font = 'bold 64px monospace';
+
+                            textString = GAME_.score;
+                            textWidth = ctx.measureText(textString).width;
+
+                            ctx.fillText(textString , (ctx.canvas.width/2) - (textWidth / 2), ctx.canvas.height/ 2 + 50);
+
+                            if (GAME_.botMode) {
+                                ctx.save();
+                                ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2 + 50);
+                                ctx.rotate(-Math.PI/8);
+                                // Text
+                                var fontsize = 64;
+                                ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
+                                ctx.font = `bold ${fontsize}px monospace`;
+                                var lineHeight = fontsize * 1.286, padding = 10;
+                                textString = "FAKE"
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, -(textWidth / 2), 0);
+                                // Rect
+                                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                                ctx.lineWidth = 5;
+                                ctx.strokeRect(-(textWidth/2 + padding), -(lineHeight/2 + padding), textWidth + padding*2, lineHeight/2 + padding*1.5);
+                                ctx.restore();
+                            }                            
+                        },
+                        blob => {
+                            const img = document.createElement("img");
+                            const url = URL.createObjectURL(blob);
+
+                            img.onload = () => {
+                                // no longer need to read the blob so it is revoked
+                                URL.revokeObjectURL(url);
+                            };
+
+                            img.src = url;
+
+                            // SAVE BLOB
+                            GAME_.screenshot.blob = blob;
+
+                            GAME_.screenshot.callback(img);
+                        });
+
+                    // DISABLE OPTION, IF THE PROCESS HAS SUCCESS OF FAILED SHOULD DISABLE.
+                    // OTHERWISE WITH THE DELAY OF THE CALLBACK THE FUNCTION WILL BE CALLED MULTIPLE TIMES
+                    GAME_.screenshot.enable = false;
+                    GAME_.screenshot.frames = 0;
+                }
+            } else {
+                GAME_.screenshot.frames++;
+            }
+        }
         
     }
 
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
-    window.addEventListener(eventType, e => {
-        if (!e.target.className.split(' ').some((c) => { return /pwa-.*/.test(c); })) {
-            fncStart();
-        }
-    }); // ADD FNC
+    eventLayer.addEventListener(eventType, fncStart); // ADD FNC
 
     let keyFree = true;
     // PC Version
@@ -478,6 +637,14 @@ window.addEventListener('load', ()=>{
             keyFree = true;
         }
     });
+
+    // SHARE RECORD
+    recordShare.addEventListener(eventType, async () => {
+        if( ! await Blob2Share(GAME_.screenshot.blob)){
+            Blob2Download(GAME_.screenshot.blob);
+        }
+
+    })
 });
 
 
@@ -490,28 +657,33 @@ function playConfetti(min, max){
 
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.botMode = true;
     let botTimer = setInterval(()=>{
-        const lastLayer = stackBoxArr[stackBoxArr.length -1];
-        const previousLayer = stackBoxArr[stackBoxArr.length -2];
-    
-        // LAST LAYER DIRECTION
-        let lastDirection = lastLayer.direction;
-    
-        // CALCULATE OUTBOX 
-        let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
-        let alpha = Math.abs(delta); // GET POSITIVE NUM
-    
-        // CALCULATE OUTBOX WIDTH DEPTH
-        let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
-        let inbox = outbox - alpha;
-            
-        const boxRelation = inbox / outbox; // 0 to 1
-        if(boxRelation >= (precision?precision:0.95)){
-            fncStart();
-            if(output){
-                console.log(boxRelation); // OUTPUT
+        try {
+            const lastLayer = stackBoxArr[stackBoxArr.length -1];
+            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+        
+            // LAST LAYER DIRECTION
+            let lastDirection = lastLayer.direction;
+        
+            // CALCULATE OUTBOX 
+            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
+            let alpha = Math.abs(delta); // GET POSITIVE NUM
+        
+            // CALCULATE OUTBOX WIDTH DEPTH
+            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
+            let inbox = outbox - alpha;
+                
+            const boxRelation = inbox / outbox; // 0 to 1
+            if(boxRelation >= (precision?precision:0.95)){
+                fncStart();
+                if(output){
+                    console.log(boxRelation); // OUTPUT
+                }
             }
+        } catch (e) {
+            // BY DEFAULT START GAME
+            fncStart();
         }
-    
     }, timer?timer:20);
 }
