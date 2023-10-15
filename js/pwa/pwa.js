@@ -1,10 +1,9 @@
-let deferredPrompt, enableDownload = false, installBtn;
+let deferredPrompt, enableDownload = false, installBtn, installRejector;
 
 window.addEventListener("load", () => {
     console.log("PWA ready!");
     let activeDownload = localStorage.getItem("PWA_installed");
     let installDismissed = localStorage.getItem("installDismissed");
-    console.log(installDismissed);
     installBtn = document.querySelector("#pwa-install-btn");
     installRejector = document.querySelector("#pwa-dismiss-btn"); //cool variable name
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -29,10 +28,12 @@ window.addEventListener("load", () => {
 
         if((!activeDownload || activeDownload == 'false') && (!installDismissed || installDismissed == 'false')) {
             enableDownload = true;
+            
             installRejector.addEventListener("click", ()=>{
                 localStorage.setItem("installDismissed", 'true');
                 document.querySelector("#pwa-install").classList.remove("display");
-            })
+            });
+
             installBtn.addEventListener("click", () => {
                 console.log("Installing...");
                 // Show the install prompt
@@ -47,7 +48,6 @@ window.addEventListener("load", () => {
                 });
 
                 enableDownload = false;
-                installBtn.classList.remove("display");
             });
         } else {
             console.log('Installed before or install dismissed')

@@ -447,8 +447,10 @@ window.addEventListener('load', ()=>{
                     playConfetti(); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
-                    GAME_.bestResult = GAME_.score;
-                    window.localStorage.setItem('bestResult', GAME_.score);
+                    if (!GAME_.botMode) {
+                        GAME_.bestResult = GAME_.score;
+                        window.localStorage.setItem('bestResult', GAME_.score);
+                    }
 
                     // SHOW NEWRECORD
                     scoreTab.classList.add('new');
@@ -470,16 +472,16 @@ window.addEventListener('load', ()=>{
                 // ACTIVE ZOOMOUT
                 if (GAME_.zoomOut.service)
                     GAME_.zoomOut.enable = true;
-                let dismissed = localStorage.getItem("installDismissed");
+
+                let dismissed = localStorage.getItem("installDismissed") ?? false; // Better than localStorage.getItem("installDismissed") || false
                 // CHECK PWA INSTALLATION (1.0.4 version)
-                if (enableDownload && dismissed == "false"){
+                if (enableDownload && (dismissed == "false" || !dismissed)){
                     document.querySelector('#pwa-install').classList.add('display');
                     if(GAME_.gamesPlayed > 0){
-                        document.querySelector('#pwa-dismiss-btn').style.display = "block";
+                        document.querySelector('#pwa-dismiss-btn').classList.add('display');
                     }
                 }
                 GAME_.gamesPlayed++;
-
             }
         }
     }
@@ -513,7 +515,7 @@ window.addEventListener('load', ()=>{
 
             // CHECK IF ZOOM OUT IS ENABLED
             if (GAME_.zoomOut.enable) {
-                cameraPos.size -= 0.03;
+                cameraPos.size -= 0.02;
                 refreshCameraView();
 
                 GAME_.zoomOut.frames ++;
@@ -566,8 +568,8 @@ window.addEventListener('load', ()=>{
                                 ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2 + 50);
                                 ctx.rotate(-Math.PI/8);
                                 // Text
-                                var fontsize = 48;
-                                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                                var fontsize = 64;
+                                ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
                                 ctx.font = `bold ${fontsize}px monospace`;
                                 var lineHeight = fontsize * 1.286, padding = 10;
                                 textString = "FAKE"
@@ -683,6 +685,5 @@ function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
             // BY DEFAULT START GAME
             fncStart();
         }
-    
     }, timer?timer:20);
 }
