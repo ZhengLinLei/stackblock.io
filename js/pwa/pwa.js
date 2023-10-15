@@ -3,9 +3,10 @@ let deferredPrompt, enableDownload = false, installBtn;
 window.addEventListener("load", () => {
     console.log("PWA ready!");
     let activeDownload = localStorage.getItem("PWA_installed");
-
+    let installDismissed = localStorage.getItem("installDismissed");
+    console.log(installDismissed);
     installBtn = document.querySelector("#pwa-install-btn");
-
+    installRejector = document.querySelector("#pwa-dismiss-btn"); //cool variable name
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
@@ -21,13 +22,17 @@ window.addEventListener("load", () => {
                 activeDownload = localStorage.getItem("PWA_installed");
             } else {
                 localStorage.removeItem("PWA_installed");
+                document.querySelector("#pwa-install").classList.remove("display");
                 activeDownload = false;
             }
         }
 
-        if(!activeDownload || activeDownload == 'false') {
+        if((!activeDownload || activeDownload == 'false') && (!installDismissed || installDismissed == 'false')) {
             enableDownload = true;
-
+            installRejector.addEventListener("click", ()=>{
+                localStorage.setItem("installDismissed", 'true');
+                document.querySelector("#pwa-install").classList.remove("display");
+            })
             installBtn.addEventListener("click", () => {
                 console.log("Installing...");
                 // Show the install prompt
@@ -45,7 +50,7 @@ window.addEventListener("load", () => {
                 installBtn.classList.remove("display");
             });
         } else {
-            console.log('Installed before')
+            console.log('Installed before or install dismissed')
         }
     });
 

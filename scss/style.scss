@@ -185,6 +185,7 @@ body{
         .pwa-install-button {
             display: flex;
             justify-content: end;
+            grid-gap:60px;
             button {
                 // Minimal design for install button
                 border: none;
@@ -199,6 +200,16 @@ body{
 
                 &:hover {
                     background-color: #5fc581;
+                }
+            }
+            span{
+                display:none;
+                padding:5px 0px 0px;
+                color:rgb(74, 74, 74);
+                font-size:12px;
+                text-decoration: underline;
+                &:hover{
+                    color:rgb(255, 0, 0);
                 }
             }
         }

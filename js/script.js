@@ -6,6 +6,7 @@ let GAME_ = {
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
     score: 0,
     combo: 0,
+    gamesPlayed: 0,
     bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
     newRecord: false, // TO RESET SCREEN
     designPalette: 0,
@@ -469,10 +470,16 @@ window.addEventListener('load', ()=>{
                 // ACTIVE ZOOMOUT
                 if (GAME_.zoomOut.service)
                     GAME_.zoomOut.enable = true;
-
+                let dismissed = localStorage.getItem("installDismissed");
                 // CHECK PWA INSTALLATION (1.0.4 version)
-                if (enableDownload) 
+                if (enableDownload && dismissed == "false"){
                     document.querySelector('#pwa-install').classList.add('display');
+                    if(GAME_.gamesPlayed > 0){
+                        document.querySelector('#pwa-dismiss-btn').style.display = "block";
+                    }
+                }
+                GAME_.gamesPlayed++;
+
             }
         }
     }
