@@ -144,12 +144,12 @@ body{
         position: fixed;
         top: 30px;
         left: 50%;
-        transform: translateX(-50%) translateY(-100%);
+        transform: translateX(-50%) translateY(calc(-100% - 30px));
         background-color: white;
         z-index: 2;
         padding: 10px;
         border-radius: 5px;
-        display: none;
+        display: flex;
         justify-content: space-between;
         grid-gap: 20px;
         width: 250px;
@@ -157,7 +157,6 @@ body{
         flex-wrap: nowrap;
         overflow: hidden;
         &.display {
-            display: flex;
             // scroll down animation
             animation: scrollDown .3s ease forwards;
         }
@@ -184,7 +183,8 @@ body{
         }
         .pwa-install-button {
             display: flex;
-            justify-content: end;
+            justify-content: space-between;
+            align-items: end;
             button {
                 // Minimal design for install button
                 border: none;
@@ -199,6 +199,19 @@ body{
 
                 &:hover {
                     background-color: #5fc581;
+                }
+            }
+            a {
+                visibility: hidden;
+                color: rgb(114, 114, 114);
+                text-decoration: underline;
+                font-size: 10px;
+                margin-bottom: 5px;
+                &:hover{
+                    color:rgb(74, 74, 74);
+                }
+                &.display {
+                    visibility: visible;
                 }
             }
         }
