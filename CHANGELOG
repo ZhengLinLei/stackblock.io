@@ -1,3 +1,13 @@
+v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta
+    - Changed PWA
+    - Added PWA install popup
+    - Changed playBot() function test
+    - Changed combos logic (Rebalanced)
+    - Excluded ultra thin outbox generation
+    - Changed Best Score label to Score
+    - Added Screenshot feature to share records
+    - Added micro zoom-out to better views
+    
 v0.1.5 -> 09/10/2023 -----------------------------------> TAG: v0.1.5-alpha
     - Added randomization of colors
     - Fixed pwa update problem
