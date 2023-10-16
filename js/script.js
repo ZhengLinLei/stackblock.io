@@ -2,6 +2,13 @@
 // GAME DETAILS
 let GAME_ = {
     status: false,
+    fpsCtrl: {
+        fps: 60,
+        fpsInterval: 0,
+        now: 0,
+        then: 0,
+        delta: 0,
+    },
     end: false,
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
     score: 0,
@@ -173,6 +180,13 @@ window.addEventListener('load', ()=>{
         camera.bottom = cameraPos.height / -cameraPos.size;
         camera.updateProjectionMatrix();
     }
+
+    // GET ms NOW()
+    function timeNow() {
+        if ('now' in window) return now();
+        if ('now' in performance && 'performance' in window) return performance.now();
+        return Date.now();
+    }
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -289,7 +303,13 @@ window.addEventListener('load', ()=>{
             // FIRST TIME PLAYING THE GAME?
             if(!GAME_.active){
                 // ANIMATION FRAME 60fps
-                renderer.setAnimationLoop(animation);
+                // renderer.setAnimationLoop(animation);   -------> Doesn't have FPS control. Call 1/fps --> Higher FPSs higher velocity
+
+                // FORCE 60FPS
+                GAME_.fpsCtrl.fpsInterval = 1000 / GAME_.fpsCtrl.fps; // IN ms
+                GAME_.fpsCtrl.then = timeNow();
+                animation();
+
                 GAME_.active = true; // ACTIVE GAME
 
                 // CHANGE BEST_SCORE TO SCORE
@@ -486,7 +506,7 @@ window.addEventListener('load', ()=>{
         }
     }
 
-    function animation(){
+    function draw() {
         if(!GAME_.end){
             // MOVE TOP LAYER
             const layer = stackBoxArr[stackBoxArr.length -1];
@@ -608,9 +628,23 @@ window.addEventListener('load', ()=>{
                 GAME_.screenshot.frames++;
             }
         }
-        
     }
 
+    function animation(){
+        requestAnimationFrame(animation);
+
+        GAME_.fpsCtrl.now = timeNow();
+        GAME_.fpsCtrl.elapsed = GAME_.fpsCtrl.now - GAME_.fpsCtrl.then;
+
+        // if enough time has elapsed, draw the next frame
+        if (GAME_.fpsCtrl.elapsed > GAME_.fpsCtrl.fpsInterval) {
+
+            // Get ready for next frame by setting then = now
+            GAME_.fpsCtrl.then = GAME_.fpsCtrl.now - (GAME_.fpsCtrl.elapsed % GAME_.fpsCtrl.fpsInterval);
+            // SAFE TO DRAW
+            draw();
+        }
+    }
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
