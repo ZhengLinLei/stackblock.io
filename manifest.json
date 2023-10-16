@@ -2,7 +2,7 @@
 	"name": "StackBlock.io",
 	"short_name": "StackBlock",
 	"description": "Easy and funny .io game.",
-	"start_url": "./index.html",
+	"start_url": "./index.html?fullscreen=true&standalone=true",
 	"display": "standalone",
 	"orientation": "portrait",
 	"background_color": "#f5f5f5",

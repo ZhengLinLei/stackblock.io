@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- OPT -->
     <link rel="shortcut icon" href="./source/ico.ico" type="image/x-icon">
     <meta name="theme-color" content="#e6a755" />
@@ -24,7 +24,6 @@
     <!-- SCSS -->
     <link rel="stylesheet" href="./css/style.css">
     <title>StackBlock.io - Minigame</title>
-    <!-- Version 1.0.1 -->
 </head>
 <body>
     <div>
@@ -45,6 +44,9 @@
         </footer>
     </main>
 
+    <!-- Click Event Layer -->
+    <section id="click-event" class="click-event"></section>
+
     <!-- PWA installer -->
     <section id="pwa-install" class="pwa-install">
         <div class="pwa-install-icon">
@@ -56,17 +58,25 @@
                 <p class="pwa-install-description">Download the APP</p>
             </div>
             <div class="pwa-install-button">
+                <a id="pwa-dismiss-btn" class="pwa-install-btn">Not now</a>
                 <button id="pwa-install-btn" class="pwa-install-btn">Install</button>
             </div>
         </div>
     </section>
 
+    <!-- Record Share -->
+    <section id="record-share" class="record-share">
+        <img src="">
+        <small>Tap to share picture</small>
+    </section>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js" integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
+    <script src="./js/lib/png2share.min.js"></script>
     <script src="./js/script.min.js"></script>
     <script>
-        const V = "1.0.5";
+        const V = "1.0.6";
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register(`./sw.js?v=${V}`)
@@ -80,7 +90,6 @@
             });
         }
     </script>
-    <script src="./js/pwa.min.js"></script>
-    <!-- <script src="./js/script.js"></script> -->
+    <script src="./js/pwa/pwa.min.js"></script>
 </body>
 </html>

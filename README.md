@@ -10,7 +10,7 @@
 Live web preview [here](https://zhenglinlei.github.io/stackblock.io)
 
 <p align="center">
-    <img src="./docs/intro.png" alt="intro pic" />
+    <img src="./doc/intro.png" alt="intro pic" />
 </p>
 
 <br>
@@ -26,7 +26,7 @@ Live web preview [here](https://zhenglinlei.github.io/stackblock.io)
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" />
   </a>&nbsp;
   <a>
-    <img src="https://img.shields.io/badge/version-1.0-brightgreen" alt="Version" />
+    <img src="https://img.shields.io/badge/version-0.1.6-brightgreen" alt="Version" />
   </a>
 </p>
 
