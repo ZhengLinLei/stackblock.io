@@ -1,5 +1,5 @@
 //GET VERSION
-const CACHE_VERSION = "1.0.6";
+const CACHE_VERSION = "1.0.6-b1";
 const CURRENT_CACHE = `sbio-v${CACHE_VERSION}`;
 let filesToCache = [
   "./manifest.json",
