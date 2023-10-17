@@ -83,6 +83,7 @@ const DrawCanvasCopy = (canvas, callback, callbackBlob) => {
 //
 // Convert blob to image share
 const Blob2Share = async(blob) => {
+    let tries = 0, maxTries = 3;
     if (!('share' in navigator) || !('canShare' in navigator)) {
       return false;
     }
@@ -93,12 +94,19 @@ const Blob2Share = async(blob) => {
         files,
     };
     if (navigator.canShare(shareData)) {
-        try {
-            await navigator.share(shareData);
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                console.error(err.name, err.message);
-                return false;
+        while(true) {
+            try {
+                await navigator.share(shareData);
+                // If no errors return
+                return true;
+            } catch (err) {
+                if (err.name !== 'AbortError' || err.name.toLowerCase() !== 'aborterror') {
+                    if (tries >= maxTries) return false;
+
+                    tries++;
+                    continue;
+                }
+                return true;
             }
         }
     } else {

@@ -35,7 +35,7 @@ let GAME_ = {
         enable: false,
         frames: 0,
         finished: false
-    },// Zoom out the camera fter every game over
+    }, // Zoom out the camera fter every game over
 }
 
 // ==================================
@@ -240,6 +240,9 @@ window.addEventListener('load', ()=>{
 
         // REMOVE NEW RECORD SHARE
         recordShare.classList.remove('display');
+
+        // REMOVE NOTI
+        document.querySelector('#noti-popup').classList.remove('display');
     }
 
     // =============================================
@@ -674,11 +677,18 @@ window.addEventListener('load', ()=>{
 
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
-        if( ! await Blob2Share(GAME_.screenshot.blob)){
-            Blob2Download(GAME_.screenshot.blob);
+        if(!(await Blob2Share(GAME_.screenshot.blob))){
+            // Blob2Download(GAME_.screenshot.blob);  ---> We don't want surprise downloads
+            document.querySelector('#noti-popup-text').innerText = "Unable to share. Take screenshot 📸";
+            //!TODO: Create a popup-message function that do all this job
+            document.querySelector('#noti-popup').classList.add('display');
+            setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+            ,
+            5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+            );
         }
 
-    })
+    });
 });
 
 
