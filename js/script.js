@@ -30,6 +30,9 @@ let GAME_ = {
         // Image content buffer
     },
     botMode: false,
+    confetti: {
+        range: [30, 50],
+    },
     zoomOut: {
         service: true, // If this service must be disable, change value to false
         enable: false,
@@ -295,6 +298,19 @@ window.addEventListener('load', ()=>{
     // DISPLAY
     document.body.appendChild(renderer.domElement);
 
+    // GET CONFETTI RANGE
+    if ('deviceMemory' in navigator) {
+        if (navigator.deviceMemory <= 32) {
+            GAME_.confetti.range = [
+                Math.log2(navigator.deviceMemory) * 10,
+                Math.log2(navigator.deviceMemory) * 10 + 20,
+            ].map(Math.round);
+            // Calculate the range of <RAM> to set confetti particles
+        } else {
+            GAME_.confetti.range = [50, 70]; // MAX
+        }
+    }
+
     /*===============================
     =  GAME CORE
     ================================*/
@@ -467,7 +483,7 @@ window.addEventListener('load', ()=>{
 
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
-                    playConfetti(); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
+                    playConfetti(GAME_.confetti.range[0], GAME_.confetti.range[1]); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
                     if (!GAME_.botMode) {
