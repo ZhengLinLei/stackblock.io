@@ -2,6 +2,13 @@
 // GAME DETAILS
 let GAME_ = {
     status: false,
+    fpsCtrl: {
+        fps: 60,
+        fpsInterval: 0,
+        now: 0,
+        then: 0,
+        delta: 0,
+    },
     end: false,
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
     score: 0,
@@ -23,12 +30,15 @@ let GAME_ = {
         // Image content buffer
     },
     botMode: false,
+    confetti: {
+        range: [30, 50],
+    },
     zoomOut: {
         service: true, // If this service must be disable, change value to false
         enable: false,
         frames: 0,
         finished: false
-    },// Zoom out the camera fter every game over
+    }, // Zoom out the camera fter every game over
 }
 
 // ==================================
@@ -173,6 +183,13 @@ window.addEventListener('load', ()=>{
         camera.bottom = cameraPos.height / -cameraPos.size;
         camera.updateProjectionMatrix();
     }
+
+    // GET ms NOW()
+    function timeNow() {
+        if ('now' in window) return now();
+        if ('now' in performance && 'performance' in window) return performance.now();
+        return Date.now();
+    }
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -226,6 +243,9 @@ window.addEventListener('load', ()=>{
 
         // REMOVE NEW RECORD SHARE
         recordShare.classList.remove('display');
+
+        // REMOVE NOTI
+        document.querySelector('#noti-popup').classList.remove('display');
     }
 
     // =============================================
@@ -278,6 +298,19 @@ window.addEventListener('load', ()=>{
     // DISPLAY
     document.body.appendChild(renderer.domElement);
 
+    // GET CONFETTI RANGE
+    if ('deviceMemory' in navigator) {
+        if (navigator.deviceMemory <= 32) {
+            GAME_.confetti.range = [
+                Math.log2(navigator.deviceMemory) * 10,
+                Math.log2(navigator.deviceMemory) * 10 + 20,
+            ].map(Math.round);
+            // Calculate the range of <RAM> to set confetti particles
+        } else {
+            GAME_.confetti.range = [50, 70]; // MAX
+        }
+    }
+
     /*===============================
     =  GAME CORE
     ================================*/
@@ -289,7 +322,13 @@ window.addEventListener('load', ()=>{
             // FIRST TIME PLAYING THE GAME?
             if(!GAME_.active){
                 // ANIMATION FRAME 60fps
-                renderer.setAnimationLoop(animation);
+                // renderer.setAnimationLoop(animation);   -------> Doesn't have FPS control. Call 1/fps --> Higher FPSs higher velocity
+
+                // FORCE 60FPS
+                GAME_.fpsCtrl.fpsInterval = 1000 / GAME_.fpsCtrl.fps; // IN ms
+                GAME_.fpsCtrl.then = timeNow();
+                animation();
+
                 GAME_.active = true; // ACTIVE GAME
 
                 // CHANGE BEST_SCORE TO SCORE
@@ -444,7 +483,7 @@ window.addEventListener('load', ()=>{
 
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
-                    playConfetti(); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
+                    playConfetti(GAME_.confetti.range[0], GAME_.confetti.range[1]); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
                     if (!GAME_.botMode) {
@@ -486,7 +525,7 @@ window.addEventListener('load', ()=>{
         }
     }
 
-    function animation(){
+    function draw() {
         if(!GAME_.end){
             // MOVE TOP LAYER
             const layer = stackBoxArr[stackBoxArr.length -1];
@@ -608,9 +647,23 @@ window.addEventListener('load', ()=>{
                 GAME_.screenshot.frames++;
             }
         }
-        
     }
 
+    function animation(){
+        requestAnimationFrame(animation);
+
+        GAME_.fpsCtrl.now = timeNow();
+        GAME_.fpsCtrl.elapsed = GAME_.fpsCtrl.now - GAME_.fpsCtrl.then;
+
+        // if enough time has elapsed, draw the next frame
+        if (GAME_.fpsCtrl.elapsed > GAME_.fpsCtrl.fpsInterval) {
+
+            // Get ready for next frame by setting then = now
+            GAME_.fpsCtrl.then = GAME_.fpsCtrl.now - (GAME_.fpsCtrl.elapsed % GAME_.fpsCtrl.fpsInterval);
+            // SAFE TO DRAW
+            draw();
+        }
+    }
 
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
@@ -640,11 +693,18 @@ window.addEventListener('load', ()=>{
 
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
-        if( ! await Blob2Share(GAME_.screenshot.blob)){
-            Blob2Download(GAME_.screenshot.blob);
+        if(!(await Blob2Share(GAME_.screenshot.blob))){
+            // Blob2Download(GAME_.screenshot.blob);  ---> We don't want surprise downloads
+            document.querySelector('#noti-popup-text').innerText = "Unable to share. Take screenshot 📸";
+            //!TODO: Create a popup-message function that do all this job
+            document.querySelector('#noti-popup').classList.add('display');
+            setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+            ,
+            5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+            );
         }
 
-    })
+    });
 });
 
 

@@ -1,0 +1,30 @@
+{
+  "name": "stackblock.io",
+  "version": "0.1.6",
+  "description": "",
+  "repository": {
+    "url": "https://github.com/ZhengLinLei/stackblock.io"
+  },
+  "homepage": "https://ZhengLinLei.github.io/stackblock.io",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "minify": "grunt uglify:js"
+  },
+  "keywords": [
+    "treejs",
+    "cannonjs",
+    "game",
+    "io"
+  ],
+  "author": {
+    "name": "ZhengLinLei",
+    "github": "https://github.com/ZhengLinLei"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "grunt": "^1.6.1",
+    "grunt-contrib-uglify": "^5.2.2"
+  }
+}

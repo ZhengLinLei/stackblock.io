@@ -64,6 +64,12 @@
         </div>
     </section>
 
+    <!-- Notification po-up -->
+    <section id="noti-popup" class="noti-popup">
+        <p id="noti-popup-text">Unable to share. Take screenshot 📸</p>
+        <div class="loader"></div>
+    </section>
+
     <!-- Record Share -->
     <section id="record-share" class="record-share">
         <img src="">
@@ -76,7 +82,7 @@
     <script src="./js/lib/png2share.min.js"></script>
     <script src="./js/script.min.js"></script>
     <script>
-        const V = "1.0.6";
+        const V = "1.0.6-b1";
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register(`./sw.js?v=${V}`)

@@ -1,4 +1,4 @@
-v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta
+v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta; v0.1.6-beta.1
     - Changed PWA
     - Added PWA install popup
     - Changed playBot() function test
@@ -7,6 +7,10 @@ v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta
     - Changed Best Score label to Score
     - Added Screenshot feature to share records
     - Added micro zoom-out to better views
+    ----> Release
+    - Fixed lag in some mobile devices
+    - Fixed not working share record and css error
+    - Fixed FPS problem, due not controlling frames count. 120fps is more faster than 60fps
     
 v0.1.5 -> 09/10/2023 -----------------------------------> TAG: v0.1.5-alpha
     - Added randomization of colors
