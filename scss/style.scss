@@ -152,7 +152,6 @@ body{
         display: flex;
         justify-content: space-between;
         grid-gap: 20px;
-        width: 250px;
         height: $image-size;
         flex-wrap: nowrap;
         overflow: hidden;
@@ -217,6 +216,48 @@ body{
         }
     }
 
+    #noti-popup {
+        $loader-size: 1px;
+        //
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(calc(100% + 35px));
+        background-color: rgb(0, 0, 0);
+        z-index: 2;
+        font-size: 12px;
+        border-radius: 5px;
+        overflow: hidden;
+        padding: 10px;
+        padding-bottom: 10px + $loader-size;
+
+        &.display {
+            // scroll up animation
+            animation: scrollUp 5.1s linear;
+
+            .loader{
+                animation: loaderBack 5s linear;
+            }
+        }
+
+        #noti-pop-text {
+            display: block;
+        }
+        .loader {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: $loader-size;
+            background-color: white;
+        }
+    }
+
+    #pwa-install, #noti-popup {
+        width: 100vw;
+        max-width: 270px;
+    }
+
     #record-share {
         $gadget-size: 35vw;
         //
@@ -251,7 +292,7 @@ body{
             object-fit: cover;
         }
         // Dektop make it smaller
-        @media screen and (max-height: 700px) {
+        @media screen and (max-height: 700px) and (min-width: 800px) {
             img {
                 width: calc($gadget-size * 0.8);
                 height: calc($gadget-size * 0.8);
@@ -260,7 +301,7 @@ body{
             }    
         }
         // Mobile
-        @media (hover: none) {
+        @media (hover: none) or (max-width: 800px) {
             &.display {
                 animation: jumpShakingTouch 0.5s forwards;
             }
@@ -296,6 +337,24 @@ body{
 @keyframes scrollDown {
     100% {
         transform: translateX(-50%) translateY(0%);
+    }
+}
+
+@keyframes scrollUp {
+    5% {
+        transform: translateX(-50%) translateY(0%);
+    }
+    95% {
+        transform: translateX(-50%) translateY(0%);
+    }
+    100% {
+        transform: translateX(-50%) translateY(calc(100% + 35px));
+    }
+}
+
+@keyframes loaderBack {
+    100% {
+        width: 0%;
     }
 }
 
