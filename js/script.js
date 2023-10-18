@@ -691,6 +691,17 @@ window.addEventListener('load', ()=>{
         }
     });
 
+    // Window resize (For mobile devices when scroll or hide toolbar)
+    window.addEventListener('resize', (e) => {
+        cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
+        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        refreshCameraView()
+
+        // Resize canvas
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.render(scene, camera);
+    });
+
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
         if(!(await Blob2Share(GAME_.screenshot.blob))){
