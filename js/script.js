@@ -3,7 +3,10 @@
 let GAME_ = {
     status: false,
     fpsCtrl: {
+        // Wanted fps
         fps: 60,
+        // Measured fps -> If this number is under fps/2 must take care
+        mFps: 0,
         fpsInterval: 0,
         now: 0,
         then: 0,
@@ -657,7 +660,9 @@ window.addEventListener('load', ()=>{
 
         // if enough time has elapsed, draw the next frame
         if (GAME_.fpsCtrl.elapsed > GAME_.fpsCtrl.fpsInterval) {
-
+            // Measure fps
+            GAME_.fpsCtrl.mFps = 1000 / GAME_.fpsCtrl.elapsed;
+            // console.log(GAME_.fpsCtrl.mFps);
             // Get ready for next frame by setting then = now
             GAME_.fpsCtrl.then = GAME_.fpsCtrl.now - (GAME_.fpsCtrl.elapsed % GAME_.fpsCtrl.fpsInterval);
             // SAFE TO DRAW
