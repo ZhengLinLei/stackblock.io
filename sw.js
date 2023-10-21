@@ -1,5 +1,5 @@
 //GET VERSION
-const CACHE_VERSION = "1.0.6-b1";
+const CACHE_VERSION = "1.0.6-b2";
 const CURRENT_CACHE = `sbio-v${CACHE_VERSION}`;
 let filesToCache = [
   "./manifest.json",
@@ -14,7 +14,7 @@ let filesToCache = [
   "./js/script.min.js",
   `./sw.js?v=${CACHE_VERSION}`,
   "./js/pwa/pwa.min.js",
-  // "./js/lib/png2share.min.js",
+  "./js/lib/png2share.min.js",
   "./index.html",
   "./",
 ];

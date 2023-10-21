@@ -11,6 +11,12 @@ v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta; v0.1
     - Fixed lag in some mobile devices
     - Fixed not working share record and css error
     - Fixed FPS problem, due not controlling frames count. 120fps is more faster than 60fps
+    ----> Release
+    - Fixed Apple Canvas resize and notch problem
+    - Added FPS counter
+    - Added low fps warning
+    - Changed Images folder-name
+    - Added windows 8 support
     
 v0.1.5 -> 09/10/2023 -----------------------------------> TAG: v0.1.5-alpha
     - Added randomization of colors
