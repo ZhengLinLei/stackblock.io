@@ -5,8 +5,8 @@
 	"start_url": "./index.html?fullscreen=true&standalone=true",
 	"display": "standalone",
 	"orientation": "portrait",
-	"background_color": "#f5f5f5",
-	"theme_color": "#e6a755",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
 	"icons": [
         {
           "src": "./img/windows11/SmallTile.scale-100.png",
