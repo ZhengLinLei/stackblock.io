@@ -1,13 +1,24 @@
 // const log = console.log;
 // GAME DETAILS
 let GAME_ = {
+    // Get IOS, Android, Windows, Mac or Linux
+    platform: (navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) ? 'ios' : (navigator.userAgent.match(/(Android)/g)) ? 'android' : (navigator.userAgent.match(/(Windows)/g)) ? 'windows' : (navigator.userAgent.match(/(Mac)/g)) ? 'mac' : (navigator.userAgent.match(/(Linux)/g)) ? 'linux' : 'unknown',
     status: false,
     fpsCtrl: {
+        forceLag: false, // Force lag to test lag warning (Make sure to disable it in production)
+        // Wanted fps
         fps: 60,
+        // Measured fps -> If this number is under fps/2 must take care
+        mFps: 0,
         fpsInterval: 0,
         now: 0,
         then: 0,
         delta: 0,
+        // Lag warning
+        lagWarning: {
+            enable: true, // Once the warning has been showed, disable it
+            lastWarning: 0, // Enable the warning after 30 seconds
+        }
     },
     end: false,
     active: false, // ACTIVE THE GAME IN THE FIRST TIME
@@ -90,8 +101,18 @@ window.addEventListener('load', ()=>{
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
-    function changeBackground(i){
-        scene.background = new THREE.Color(hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]));
+    function changeBackground(hslDark = false){
+        let hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]);
+        scene.background = new THREE.Color(hex);
+
+        // Add a dark layer background rgba(0, 0, 0, .8)
+        if (hslDark) hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], 10);
+        // Change theme-color
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", hex);
+        // Change msapplication-TileColor only with supported platforms
+        if (GAME_.platform === 'windows')
+            // Windows 8 and Related
+            document.querySelector('meta[name="msapplication-TileColor"]').setAttribute("content", hex);
     }
     // EXTERNAL FNC
     function printPoints(num){
@@ -190,6 +211,18 @@ window.addEventListener('load', ()=>{
         if ('now' in performance && 'performance' in window) return performance.now();
         return Date.now();
     }
+
+    function alertLog(text){
+        // Reset
+        document.querySelector('#noti-popup').classList.remove('display');
+        // Push
+        document.querySelector('#noti-popup-text').innerText = text;
+        document.querySelector('#noti-popup').classList.add('display');
+        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        ,
+        5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+        );
+    }
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -260,7 +293,7 @@ window.addEventListener('load', ()=>{
 
     // CREATE THE SCENE AND DECORATE IT
     scene = new THREE.Scene();
-    changeBackground();
+    changeBackground(hslDark = true);    
 
     addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
 
@@ -324,7 +357,9 @@ window.addEventListener('load', ()=>{
                 // ANIMATION FRAME 60fps
                 // renderer.setAnimationLoop(animation);   -------> Doesn't have FPS control. Call 1/fps --> Higher FPSs higher velocity
 
-                // FORCE 60FPS
+                // IS THE forceLag ENABLED?
+                GAME_.fpsCtrl.fps = (GAME_.fpsCtrl.forceLag) ? GAME_.fpsCtrl.fps/2 : GAME_.fpsCtrl.fps;
+                // FPS
                 GAME_.fpsCtrl.fpsInterval = 1000 / GAME_.fpsCtrl.fps; // IN ms
                 GAME_.fpsCtrl.then = timeNow();
                 animation();
@@ -452,9 +487,6 @@ window.addEventListener('load', ()=>{
                 // ADD ONE POINT
                 GAME_.score++;
 
-                // CHANGE BG
-                changeBackground();
-
                 printPoints(GAME_.score);
 
             }else{
@@ -523,6 +555,9 @@ window.addEventListener('load', ()=>{
                 GAME_.gamesPlayed++;
             }
         }
+
+        // CHANGE BG
+        changeBackground(hslDark = GAME_.end);
     }
 
     function draw() {
@@ -657,6 +692,21 @@ window.addEventListener('load', ()=>{
 
         // if enough time has elapsed, draw the next frame
         if (GAME_.fpsCtrl.elapsed > GAME_.fpsCtrl.fpsInterval) {
+            // Measure fps
+            GAME_.fpsCtrl.mFps = Math.round(1000 / GAME_.fpsCtrl.elapsed) - (GAME_.fpsCtrl.forceLag ? 30 : 0);
+            // Check lag
+            if (GAME_.fpsCtrl.mFps < GAME_.fpsCtrl.fps / 2) {
+                // Lag warning
+                if (GAME_.fpsCtrl.lagWarning.lastWarning + 30000 < GAME_.fpsCtrl.now) {
+                    GAME_.fpsCtrl.lagWarning.lastWarning = GAME_.fpsCtrl.now;
+                    GAME_.fpsCtrl.lagWarning.enable = true;
+                }
+            
+                if (GAME_.fpsCtrl.lagWarning.enable) {
+                    GAME_.fpsCtrl.lagWarning.enable = false;
+                    alertLog("May be laggy. Try to close other apps");
+                }
+            }
 
             // Get ready for next frame by setting then = now
             GAME_.fpsCtrl.then = GAME_.fpsCtrl.now - (GAME_.fpsCtrl.elapsed % GAME_.fpsCtrl.fpsInterval);
@@ -691,17 +741,22 @@ window.addEventListener('load', ()=>{
         }
     });
 
+    // Window resize (For mobile devices when scroll or hide toolbar)
+    window.addEventListener('resize', (e) => {
+        cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
+        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        refreshCameraView()
+
+        // Resize canvas
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.render(scene, camera);
+    });
+
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
         if(!(await Blob2Share(GAME_.screenshot.blob))){
             // Blob2Download(GAME_.screenshot.blob);  ---> We don't want surprise downloads
-            document.querySelector('#noti-popup-text').innerText = "Unable to share. Take screenshot 📸";
-            //!TODO: Create a popup-message function that do all this job
-            document.querySelector('#noti-popup').classList.add('display');
-            setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
-            ,
-            5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
-            );
+            alertLog("Unable to share. Take screenshot 📸");
         }
 
     });
