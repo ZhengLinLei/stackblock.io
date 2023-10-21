@@ -5,7 +5,7 @@ let GAME_ = {
     platform: (navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) ? 'ios' : (navigator.userAgent.match(/(Android)/g)) ? 'android' : (navigator.userAgent.match(/(Windows)/g)) ? 'windows' : (navigator.userAgent.match(/(Mac)/g)) ? 'mac' : (navigator.userAgent.match(/(Linux)/g)) ? 'linux' : 'unknown',
     status: false,
     fpsCtrl: {
-        forceLag: true, // Force lag to test lag warning (Make sure to disable it in production)
+        forceLag: false, // Force lag to test lag warning (Make sure to disable it in production)
         // Wanted fps
         fps: 60,
         // Measured fps -> If this number is under fps/2 must take care
@@ -104,13 +104,15 @@ window.addEventListener('load', ()=>{
     function changeBackground(hslDark = false){
         let hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]);
         scene.background = new THREE.Color(hex);
-        // Check if is IOS to ensure that the Safe area is filled with the same color
-        if(GAME_.platform === 'ios' && !window.MSStream){
-            // Add a dark layer background rgba(0, 0, 0, .8)
-            if (hslDark) hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], 10);
-            // Change theme-color
-            document.querySelector('meta[name="theme-color"]').setAttribute("content", hex);
-        }
+
+        // Add a dark layer background rgba(0, 0, 0, .8)
+        if (hslDark) hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], 10);
+        // Change theme-color
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", hex);
+        // Change msapplication-TileColor only with supported platforms
+        if (GAME_.platform === 'windows')
+            // Windows 8 and Related
+            document.querySelector('meta[name="msapplication-TileColor"]').setAttribute("content", hex);
     }
     // EXTERNAL FNC
     function printPoints(num){
