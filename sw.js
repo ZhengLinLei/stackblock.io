@@ -1,20 +1,20 @@
 //GET VERSION
-const CACHE_VERSION = "1.0.6-b1";
+const CACHE_VERSION = "1.0.6-b2";
 const CURRENT_CACHE = `sbio-v${CACHE_VERSION}`;
 let filesToCache = [
   "./manifest.json",
   "https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap",
   "https://fonts.gstatic.com/s/sourcecodepro/v23/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2",
   "./css/style.css",
-  "./source/ico.ico",
-  "./source/ico.png",
+  "./img/ico.ico",
+  "./img/ico.png",
   "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js",
   "https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js",
   "./js/script.min.js",
   `./sw.js?v=${CACHE_VERSION}`,
   "./js/pwa/pwa.min.js",
-  // "./js/lib/png2share.min.js",
+  "./js/lib/png2share.min.js",
   "./index.html",
   "./",
 ];
