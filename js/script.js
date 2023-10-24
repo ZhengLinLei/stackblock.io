@@ -54,6 +54,104 @@ let GAME_ = {
         framesMax: 20,
         finished: false
     }, // Zoom out the camera fter every game over
+    soundTrack: {
+        menu: {
+            name: "menu",
+            current: null,
+            next: null,
+            list: ['Hello_its_Me_00_Pix_64kbps.mp3'],
+        },
+        game: {
+            name: "game",
+            current: [null, null, null],
+            next: [null, null, null],
+            list: [
+                ['Begin_Your_Journey_', '_Pix_64kbps.mp3']
+            ],
+        },
+        load: null,
+        next: null,
+    }
+}
+
+// ==================================
+
+// PARTY FNC
+function playConfetti(min, max){
+    party.confetti(party.Rect.fromScreen(), {
+        count: party.variation.range(min?min:60, max?max:80),
+    });
+}
+// ALPHABOT v1.0 INTERNAL BOT FOR TESTING
+function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.botMode = true;
+    let botTimer = setInterval(()=>{
+        try {
+            const lastLayer = stackBoxArr[stackBoxArr.length -1];
+            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+        
+            // LAST LAYER DIRECTION
+            let lastDirection = lastLayer.direction;
+        
+            // CALCULATE OUTBOX 
+            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
+            let alpha = Math.abs(delta); // GET POSITIVE NUM
+        
+            // CALCULATE OUTBOX WIDTH DEPTH
+            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
+            let inbox = outbox - alpha;
+                
+            const boxRelation = inbox / outbox; // 0 to 1
+            if(boxRelation >= (precision?precision:0.95)){
+                fncStart();
+                if(output){
+                    console.log(boxRelation); // OUTPUT
+                }
+            }
+        } catch (e) {
+            // BY DEFAULT START GAME
+            fncStart();
+        }
+    }, timer?timer:20);
+}
+
+// LOAD MUSIC
+GAME_.soundTrack.load = (type, list) => {
+    let a;
+    // Random list or set string
+    let target = (list.constructor === Array) ? list[Math.floor(Math.random() * list.length)] : list
+    // Two types: [menu, game, other]
+    if (type == 'game') {
+        a = [null, null, null];
+        for(let i = 0; i < 3; i++) {
+            a[i] = new Audio(`./music/${type}/${target[0]}0${i}${target[1]}`);
+            a[i].loop = true;
+            a[i].currentTime = 0;
+            //
+            a[i].addEventListener('ended', () => {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+        }
+    } else {
+        a = new Audio(`./music/${type}/${target}`);
+        // Add loop
+        a.loop = true;
+        a.currentTime = 0;
+        // And force it in case that browser doesn't support it
+        a.addEventListener('ended', () => {
+            this.currentTime = 0;
+            this.play();
+        }, false);
+    }
+
+    return a;
+}
+
+// PASS TO NEXT AUDIO AND LOAD NEW
+GAME_.soundTrack.next = (obj) => {
+    obj.current = obj.next;
+    obj.next = GAME_.soundTrack.load(obj.name, obj.list);
 }
 
 // ==================================
@@ -90,8 +188,14 @@ let world, scene, camera, renderer, fncStart;
 // STACK ARR
 let stackBoxArr = [], outBoxArr = [];
 
+// PRELOAD MENU MUSIC AND BG MUSIC
+GAME_.soundTrack.menu.current = GAME_.soundTrack.load('menu', GAME_.soundTrack.menu.list);
+GAME_.soundTrack.game.current = GAME_.soundTrack.load('game', GAME_.soundTrack.game.list);
 
 window.addEventListener('load', ()=>{
+    // PLAY MENU BG (NOT WORKING DUE PRIVILEGIES) 
+    //!TODO CHANGE IT
+    GAME_.soundTrack.menu.current.play();
     // CHECK USER BROSWER AND OS
     // IF OS == ios AND BROWSER == safari
     if(GAME_.platform === 'ios' && navigator.userAgent.match(/(Safari)/g)){
@@ -197,8 +301,6 @@ window.addEventListener('load', ()=>{
             depth
         }
     }
-
-
     // COLOR HSL TO HEX
     function hslToHex(h, s, l) {
         l = (l>101)?100:l;
@@ -211,7 +313,6 @@ window.addEventListener('load', ()=>{
         };
         return `#${f(0)}${f(8)}${f(4)}`;
     }
-
     // CHANGE CAMERA DATA
     function refreshCameraView() {
         camera.right = cameraPos.width / cameraPos.size;
@@ -220,7 +321,6 @@ window.addEventListener('load', ()=>{
         camera.bottom = cameraPos.height / -cameraPos.size;
         camera.updateProjectionMatrix();
     }
-
     // GET ms NOW()
     function timeNow() {
         if ('now' in window) return now();
@@ -420,6 +520,13 @@ window.addEventListener('load', ()=>{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
 
+            // STOP MENU BG MUSIC
+            GAME_.soundTrack.menu.current.pause();
+            GAME_.soundTrack.menu.current.currentTime = 0;  // Move audio start to beginning
+
+            // START GAME MUSIC
+            GAME_.soundTrack.game.current[0].play();
+
             printPoints(GAME_.score); // = 0
 
             // ADD ACTION LAYER
@@ -560,6 +667,12 @@ window.addEventListener('load', ()=>{
                 
                 GAME_.status = false;
 
+                // STOP GAME BG
+                GAME_.soundTrack.game.current[0].pause();
+                GAME_.soundTrack.game.current[0].currentTime = 0;
+
+                // START MENU BG
+                GAME_.soundTrack.menu.current.play();
 
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
@@ -821,45 +934,15 @@ window.addEventListener('load', ()=>{
         }
 
     });
-});
 
-
-// PARTY FNC
-function playConfetti(min, max){
-    party.confetti(party.Rect.fromScreen(), {
-        count: party.variation.range(min?min:60, max?max:80),
-    });
-}
-
-// ALPHABOT v1.0 INTERNAL BOT FOR TESTING
-function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
-    GAME_.botMode = true;
-    let botTimer = setInterval(()=>{
-        try {
-            const lastLayer = stackBoxArr[stackBoxArr.length -1];
-            const previousLayer = stackBoxArr[stackBoxArr.length -2];
-        
-            // LAST LAYER DIRECTION
-            let lastDirection = lastLayer.direction;
-        
-            // CALCULATE OUTBOX 
-            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
-            let alpha = Math.abs(delta); // GET POSITIVE NUM
-        
-            // CALCULATE OUTBOX WIDTH DEPTH
-            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
-            let inbox = outbox - alpha;
-                
-            const boxRelation = inbox / outbox; // 0 to 1
-            if(boxRelation >= (precision?precision:0.95)){
-                fncStart();
-                if(output){
-                    console.log(boxRelation); // OUTPUT
-                }
+    // USER LEAVE
+    document.addEventListener("visibilitychange", e => {
+        if (GAME_.end) {
+            if (document.hidden) {
+                GAME_.soundTrack.menu.current.pause();
+            } else {
+                GAME_.soundTrack.menu.current.play();
             }
-        } catch (e) {
-            // BY DEFAULT START GAME
-            fncStart();
         }
-    }, timer?timer:20);
-}
+    }, false);
+});
