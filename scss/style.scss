@@ -16,8 +16,11 @@
 body{
     font-family: 'Source Code Pro', monospace;
     text-align: center;
+    height: 100vh;
+    width: 100vw;
     cursor: pointer;
     -webkit-text-size-adjust: none;
+    transition: .4s;
 
     #Stackblock {
         position: fixed;
@@ -176,6 +179,11 @@ body{
             &.pwa-install-description {
                 font-size: 10px;
                 color: #999;
+                img {
+                    margin-left: 5px;
+                    display: inline-block;
+                    transform: translateY(2px);
+                }
             }
         }
         .pwa-install-icon > img {
@@ -203,7 +211,13 @@ body{
                     background-color: #5fc581;
                 }
             }
-            a {
+            a.pwa-install-btn-apple {
+                font-size: 10px;
+                padding: 2px;
+                color: #0070c9;
+                text-decoration: none;
+            }
+            a#pwa-dismiss-btn {
                 visibility: hidden;
                 color: rgb(114, 114, 114);
                 text-decoration: underline;

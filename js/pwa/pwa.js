@@ -1,11 +1,31 @@
 let deferredPrompt, enableDownload = false, installBtn, installRejector;
 
+// Check environment
+function checkEnvironment() {
+    let active;
+    if (window.matchMedia('(display-mode: standalone)').matches  || window.navigator.standalone === true || localStorage.getItem('PWA_installed') === "true") {
+        localStorage.setItem("PWA_installed", 'true');
+        active = localStorage.getItem("PWA_installed");
+    } else {
+        localStorage.removeItem("PWA_installed");
+        document.querySelector("#pwa-install").classList.remove("display");
+        active= false;
+    }
+
+    return active;
+}
+
 window.addEventListener("load", () => {
     console.log("PWA ready!");
     let activeDownload = localStorage.getItem("PWA_installed");
     let installDismissed = localStorage.getItem("installDismissed");
     installBtn = document.querySelector("#pwa-install-btn");
     installRejector = document.querySelector("#pwa-dismiss-btn"); //cool variable name
+    installRejector.addEventListener("click", ()=>{
+        localStorage.setItem("installDismissed", 'true');
+        document.querySelector("#pwa-install").classList.remove("display");
+    });
+
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
@@ -14,25 +34,11 @@ window.addEventListener("load", () => {
         console.log("Prepared");
 
         // Check installation
-        if(!activeDownload){
-            // REMOVED: window.matchMedia('(display-mode: full-screen)').matches  ----> Full-screen doesn't that user has downloaded the PWA
-            if (window.matchMedia('(display-mode: standalone)').matches  || window.navigator.standalone === true || localStorage.getItem('PWA_installed') === "true") {
-                localStorage.setItem("PWA_installed", 'true');
-                activeDownload = localStorage.getItem("PWA_installed");
-            } else {
-                localStorage.removeItem("PWA_installed");
-                document.querySelector("#pwa-install").classList.remove("display");
-                activeDownload = false;
-            }
-        }
+        if(!activeDownload)
+            activeDownload = checkEnvironment();
 
         if((!activeDownload || activeDownload == 'false') && (!installDismissed || installDismissed == 'false')) {
             enableDownload = true;
-            
-            installRejector.addEventListener("click", ()=>{
-                localStorage.setItem("installDismissed", 'true');
-                document.querySelector("#pwa-install").classList.remove("display");
-            });
 
             installBtn.addEventListener("click", () => {
                 console.log("Installing...");
@@ -53,6 +59,14 @@ window.addEventListener("load", () => {
             console.log('Installed before or install dismissed')
         }
     });
+
+    // IOS
+    if(navigator.userAgent.match(/(iPad|iPhone|iPod)/g) && navigator.userAgent.match(/(Safari)/g)) {
+        // Set to true to force download
+        enableDownload = true;
+        // Check other conditions
+        enableDownload = !checkEnvironment();
+    }
 
     window.addEventListener('appinstalled', (event) => {
         deferredPrompt = null;
