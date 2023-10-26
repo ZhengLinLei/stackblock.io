@@ -224,6 +224,38 @@ window.addEventListener('load', ()=>{
         return Date.now();
     }
 
+    function matchLadscape() {
+        // If it's landscape change in <meta> viewport-fit from contaion to cover
+        let content = document.querySelector('meta[name="viewport"]').getAttribute("content");
+
+        // Check if browser support matchMedia
+        if ('matchMedia' in window) {
+            if (window.matchMedia("(orientation: landscape)").matches) {
+                document.querySelector('meta[name="viewport"]').setAttribute("content", content.replace("contain", "cover"));
+            } else {
+                document.querySelector('meta[name="viewport"]').setAttribute("content", content.replace("cover", "contain"));
+            }
+        } else {
+            // If not supported, check if it's landscape
+            if (window.innerHeight > window.innerWidth) {
+                document.querySelector('meta[name="viewport"]').setAttribute("content", content.replace("contain", "cover"));
+            } else {
+                document.querySelector('meta[name="viewport"]').setAttribute("content", content.replace("cover", "contain"));
+            }
+        }
+    }
+
+    function resizeCanvas() {
+        // Resize canvas
+        cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
+        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        refreshCameraView()
+
+        // Resize canvas
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.render(scene, camera);
+    }
+
     function alertLog(text){
         // Reset
         document.querySelector('#noti-popup').classList.remove('display');
@@ -727,6 +759,9 @@ window.addEventListener('load', ()=>{
         }
     }
 
+    // Change orientation
+    // matchLadscape();     -----> Don't really need it now
+
     let supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
     let eventType = supportsTouch ? 'touchstart' : 'mousedown';
     eventLayer.addEventListener(eventType, fncStart); // ADD FNC
@@ -754,14 +789,14 @@ window.addEventListener('load', ()=>{
     });
 
     // Window resize (For mobile devices when scroll or hide toolbar)
-    window.addEventListener('resize', (e) => {
-        cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
-        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
-        refreshCameraView()
+    window.addEventListener('resize', (e) => resizeCanvas());
 
+    // Window Orientation Change
+    window.addEventListener('orientationchange', (e) => {
+        // Change orientation
+        // matchLadscape();   ----> Works better without this function
         // Resize canvas
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.render(scene, camera);
+        resizeCanvas();
     });
 
     // SHARE RECORD
