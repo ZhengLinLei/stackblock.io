@@ -110,14 +110,26 @@ let GAME_ = {
             name: "menu",
             current: null,
             next: null,
-            list: ['Hello_its_Me_00_Pix_64kbps.mp3'],
+            list: [
+                'Hello_its_Me_00_Pix_64kbps.mp3',
+                // 'Dark_Sanctum_00_Uname_World_00kps.mp3'
+            ],
         },
         game: {
             name: "game",
             current: [null, null, null],
             next: [null, null, null],
             list: [
-                ['Begin_Your_Journey_', '_Pix_64kbps.mp3']
+                ['Begin_Your_Journey_', '_Pix_64kbps.mp3'],
+                ['Dark_Sanctum_', '_Uname_World_00kps.mp3'],
+            ],
+        },
+        other: {
+            name: "other",
+            list: [
+                ['Start_Game_effect.mp3', 'start'],
+                ['End_Game_effect.mp3', 'end'],
+                ['New_Record_effect.mp3', 'newRecord'],
             ],
         },
         load: null,
@@ -186,14 +198,16 @@ GAME_.soundTrack.load = (type, list) => {
         }
     } else {
         a = new Audio(`./music/${type}/${target}`);
-        // Add loop
-        a.loop = true;
         a.currentTime = 0;
-        // And force it in case that browser doesn't support it
-        a.addEventListener('ended', () => {
-            this.currentTime = 0;
-            this.play();
-        }, false);
+        if (type != "other") {
+            // Add loop
+            a.loop = true;
+            // And force it in case that browser doesn't support it
+            a.addEventListener('ended', () => {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+        }        
     }
 
     return a;
@@ -201,7 +215,8 @@ GAME_.soundTrack.load = (type, list) => {
 
 // PASS TO NEXT AUDIO AND LOAD NEW
 GAME_.soundTrack.next = (obj) => {
-    obj.current = obj.next;
+    obj.current = obj.next.slice(0);
+    obj.next = null;
     obj.next = GAME_.soundTrack.load(obj.name, obj.list);
 }
 
@@ -209,6 +224,12 @@ GAME_.soundTrack.next = (obj) => {
 // PRELOAD MENU MUSIC AND BG MUSIC
 GAME_.soundTrack.menu.current = GAME_.soundTrack.load('menu', GAME_.soundTrack.menu.list);
 GAME_.soundTrack.game.current = GAME_.soundTrack.load('game', GAME_.soundTrack.game.list);
+GAME_.soundTrack.game.next = GAME_.soundTrack.load('game', GAME_.soundTrack.game.list);
+
+// PRELOAD SOUND EFFECT
+GAME_.soundTrack.other.list.forEach(el => {
+    GAME_.soundTrack.other[el[1]] = GAME_.soundTrack.load('other', el[0]);
+});
 
 window.addEventListener('load', ()=>{
     // PLAY MENU BG (NOT WORKING DUE PRIVILEGIES) 
@@ -564,9 +585,14 @@ window.addEventListener('load', ()=>{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
 
+            // PLAY TRANSITION START
+            GAME_.soundTrack.other.start.currentTime = 0;  // Move audio start to beginning
+            GAME_.soundTrack.other.start.play();
+
+
             // STOP MENU BG MUSIC
-            GAME_.soundTrack.menu.current.pause();
             GAME_.soundTrack.menu.current.currentTime = 0;  // Move audio start to beginning
+            GAME_.soundTrack.menu.current.pause();
 
             // START GAME MUSIC
             GAME_.soundTrack.game.current[0].play();
@@ -729,13 +755,16 @@ window.addEventListener('load', ()=>{
 
                 // STOP GAME BG
                 GAME_.soundTrack.game.current[0].pause();
-                GAME_.soundTrack.game.current[0].currentTime = 0;
-
-                // START MENU BG
-                GAME_.soundTrack.menu.current.play();
+                GAME_.soundTrack.next(
+                    GAME_.soundTrack.game
+                );
 
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
+                    // START NEW RECORD SOUND EFFECT
+                    GAME_.soundTrack.other.newRecord.currentTime = 0;
+                    GAME_.soundTrack.other.newRecord.play();
+
                     playConfetti(GAME_.confetti.range[0], GAME_.confetti.range[1]); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
@@ -759,7 +788,14 @@ window.addEventListener('load', ()=>{
                         }
                         GAME_.screenshot.enable = true;
                     }
+                } else {
+                    // START END SOUND EFFECT
+                    GAME_.soundTrack.other.end.currentTime = 0;
+                    GAME_.soundTrack.other.end.play();
                 }
+
+                // START MENU BG
+                GAME_.soundTrack.menu.current.play();
                 
                 // ACTIVE ZOOMOUT
                 if (GAME_.zoomOut.service)
