@@ -815,7 +815,7 @@ window.addEventListener('load', ()=>{
 
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
-        if(!(await Blob2Share(GAME_.screenshot.blob))){
+        if(!(await Blob2Share(GAME_.screenshot.blob, (GAME_.platform == 'ios' ? true : false)))){
             // Blob2Download(GAME_.screenshot.blob);  ---> We don't want surprise downloads
             alertLog("Unable to share. Take screenshot 📸");
         }

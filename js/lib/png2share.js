@@ -82,17 +82,21 @@ const DrawCanvasCopy = (canvas, callback, callbackBlob) => {
 // Stackblock: https://stackoverflow.com/questions/68362603/share-image-via-social-media-from-pwa
 //
 // Convert blob to image share
-const Blob2Share = async(blob) => {
+const Blob2Share = async(blob, emptyText = false) => {
     let tries = 0, maxTries = 3;
     if (!('share' in navigator) || !('canShare' in navigator)) {
       return false;
     }
     const files = [new File([blob], 'newRecord.png', { type: blob.type })];
     const shareData = {
-        text: 'Play with me. In Stackblock.io',
-        title: 'Stackblock.io',
         files,
     };
+    // Add only if it's not IOS
+    if(!emptyText) {
+        shareData.title = 'Stackblock.io';
+        shareData.text = 'Play with me. In Stackblock.io';
+    }
+
     if (navigator.canShare(shareData)) {
         while(true) {
             try {
