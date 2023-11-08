@@ -18,6 +18,8 @@ let GAME_ = {
         lagWarning: {
             enable: true, // Once the warning has been showed, disable it
             lastWarning: 0, // Enable the warning after 30 seconds
+            frames: 0, // Count the frames, when started lagging. If the frames are over framesMax, show the warning
+            framesMax: 60 * 3, // 3 seconds
         }
     },
     end: false,
@@ -35,6 +37,7 @@ let GAME_ = {
         service: true, // If this service mus be disable, change value to false
         enable: false,
         frames: 0,
+        framesMax: 5,
         // Take screenshot after x frames 
         callback: null,
         blob: null
@@ -48,6 +51,7 @@ let GAME_ = {
         service: true, // If this service must be disable, change value to false
         enable: false,
         frames: 0,
+        framesMax: 20,
         finished: false
     }, // Zoom out the camera fter every game over
 }
@@ -638,7 +642,7 @@ window.addEventListener('load', ()=>{
 
                 GAME_.zoomOut.frames ++;
 
-                if (GAME_.zoomOut.frames >= 20) {
+                if (GAME_.zoomOut.frames >= GAME_.zoomOut.framesMax) {
                     GAME_.zoomOut.enable = false;
                     GAME_.zoomOut.frames = 0;
                     GAME_.zoomOut.finished = true;
@@ -654,7 +658,7 @@ window.addEventListener('load', ()=>{
         // Once the canvas(webgl2) buffer has been cleaned, it can not take screenshot anymore.
         if (GAME_.screenshot.enable) {
             // TAKE THE SCREENSHOT AFTER 5 FRAMES FOR MORE PRECISE IMAGE STATUS
-            if(GAME_.screenshot.frames >= 5) {
+            if(GAME_.screenshot.frames >= GAME_.screenshot.framesMax) {
                 // TAKE THE SCREENSHOT AFTER ZOOMOUT, NOT BEFORE OR IN PROCESS
                 if(GAME_.zoomOut.finished) {
                     // CREATE A EXTRA CANVAS
@@ -740,16 +744,26 @@ window.addEventListener('load', ()=>{
             GAME_.fpsCtrl.mFps = Math.round(1000 / GAME_.fpsCtrl.elapsed) - (GAME_.fpsCtrl.forceLag ? 30 : 0);
             // Check lag
             if (GAME_.fpsCtrl.mFps < GAME_.fpsCtrl.fps / 2) {
-                // Lag warning
-                if (GAME_.fpsCtrl.lagWarning.lastWarning + 30000 < GAME_.fpsCtrl.now) {
-                    GAME_.fpsCtrl.lagWarning.lastWarning = GAME_.fpsCtrl.now;
-                    GAME_.fpsCtrl.lagWarning.enable = true;
+                if (GAME_.fpsCtrl.lagWarning.frames >= GAME_.fpsCtrl.lagWarning.framesMax) {
+                    // Lag warning
+                    if (GAME_.fpsCtrl.lagWarning.lastWarning + 30000 < GAME_.fpsCtrl.now) {
+                        GAME_.fpsCtrl.lagWarning.lastWarning = GAME_.fpsCtrl.now;
+                        GAME_.fpsCtrl.lagWarning.enable = true;
+                    }
+                
+                    if (GAME_.fpsCtrl.lagWarning.enable) {
+                        GAME_.fpsCtrl.lagWarning.enable = false;
+                        alertLog("May be laggy. Try to close other apps");
+
+                        // Reset frames
+                        GAME_.fpsCtrl.lagWarning.frames = 0;
+                    }
+                } else {
+                    GAME_.fpsCtrl.lagWarning.frames++;
                 }
-            
-                if (GAME_.fpsCtrl.lagWarning.enable) {
-                    GAME_.fpsCtrl.lagWarning.enable = false;
-                    alertLog("May be laggy. Try to close other apps");
-                }
+            } else {
+                // Reset frames
+                GAME_.fpsCtrl.lagWarning.frames = 0;
             }
 
             // Get ready for next frame by setting then = now
