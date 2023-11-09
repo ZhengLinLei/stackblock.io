@@ -1,4 +1,14 @@
-v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta; v0.1.6-beta.1
+v0.1.6 -> 09/11/2023 -----------------------------------> TAG: v0.1.6.7
+    * Today is my birthday 🎉 *
+    - Fixed Apple Canvas resize and notch problem
+    - Added FPS counter
+    - Added low fps warning
+    - Added iPhone APP install popup
+    - Changed Images folder-name
+    - Added windows 8 support
+    - Fixed iPhone record image share
+
+v0.1.6 -> 15/10/2023 -----------------------------------> TAG: v0.1.6-beta; v0.1.6-beta.1; v0.1.6-beta.2
     - Changed PWA
     - Added PWA install popup
     - Changed playBot() function test
