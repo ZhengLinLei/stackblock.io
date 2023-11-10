@@ -276,6 +276,17 @@ window.addEventListener('load', ()=>{
         5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
         );
     }
+
+    function unlockAchieve(){
+        // Reset
+        document.querySelector('#achie-popup').classList.remove('display');
+        // Push
+        document.querySelector('#achie-popup').classList.add('display');
+        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        ,
+        5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+        );
+    }
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -421,6 +432,7 @@ window.addEventListener('load', ()=>{
 
                 // CHANGE BEST_SCORE TO SCORE
                 scoreTab.querySelector('.score').innerHTML = "SCORE";
+
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
@@ -606,6 +618,9 @@ window.addEventListener('load', ()=>{
                     }
                 }
                 GAME_.gamesPlayed++;
+
+                //!TODO: Remove it
+                unlockAchieve();
             }
         }
 
