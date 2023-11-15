@@ -1,5 +1,4 @@
-// const log = console.log;
-const c_width = 10; 
+// const log = console.log; 
 // GAME DETAILS
 let GAME_ = {
     // Get IOS, Android, Windows, Mac or Linux
@@ -77,9 +76,10 @@ let GAME_ = {
     },
 
     // DEFINE CAMERA POSITION
+    c_width : 10,
     cameraPos :  {
-        width: c_width,
-        height: c_width * (window.innerHeight/window.innerWidth),
+        width: 10,
+        height:  10 * (window.innerHeight/window.innerWidth),
         near: 1,
         far: 100,
         size: (window.innerWidth > 700)? 1 : 2
@@ -256,7 +256,7 @@ window.addEventListener('load', ()=>{
 
     function resizeCanvas() {
         // Resize canvas
-        GAME_.cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
+        GAME_.cameraPos.height = GAME_.c_width * (window.innerHeight/window.innerWidth);
         GAME_.cameraPos.size = (window.innerWidth > 700)? 1 : 2;
         refreshCameraView()
 
