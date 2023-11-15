@@ -108,15 +108,6 @@ body{
                 background-size: 200%;
                 animation: moveGradient 3s linear infinite;
             }
-              
-            @keyframes moveGradient {
-                0% {
-                    background-position: 0% 0%;
-                }
-                100% {
-                    background-position: -200% 0%;
-                }
-            }
         }
         footer.flash-text{
             position: absolute;
@@ -233,7 +224,7 @@ body{
         }
     }
 
-    #noti-popup {
+    #noti-popup, #achie-popup {
         $loader-size: 1px;
         //
         position: fixed;
@@ -260,17 +251,63 @@ body{
         #noti-pop-text {
             display: block;
         }
-        .loader {
+        .loader, .top {
             width: 100%;
             position: absolute;
             left: 0;
-            bottom: 0;
             height: $loader-size;
             background-color: white;
         }
+        .loader {
+            bottom: 0;
+        }
     }
 
-    #pwa-install, #noti-popup {
+    #achie-popup {
+        #achie-popup-text {
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            img {
+                width: 30px;
+            }
+            #achie-text {
+                display: flex;
+                flex-direction: column;
+                align-items: start;
+                gap: 5px;
+                p.message {
+                    font-size: 10px;
+                }
+            }
+        }
+        .top {
+            top: 0;
+            height: 2px;
+        }
+        // .left, .right {
+        //     height: 100%;
+        //     position: absolute;
+        //     width: 2px;
+        //     background: linear-gradient(0deg, #42c2f1 0%, #fbda4f 25%, #ab63df 50%, #5fc581 75%, #42c2f1 100%);
+        //     background-size: 200%;
+        //     animation: moveGradientY 3s linear infinite;
+        // }
+        // .left {
+        //     left: 0;
+        // }
+        // .right {
+        //     right: 0;
+        // }
+        .loader, .top {
+            background: linear-gradient(90deg, #42c2f1 0%, #fbda4f 25%, #ab63df 50%, #5fc581 75%, #42c2f1 100%);
+            background-size: 200%;
+            animation: moveGradient 3s linear infinite;
+        }
+    }
+
+    #pwa-install, #noti-popup, #achie-popup {
         width: 100vw;
         max-width: 270px;
     }
@@ -328,6 +365,23 @@ body{
             padding: 10px;
             font-size: 10px;
         }
+    }
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: -200% 0%;
+    }
+}
+@keyframes moveGradientY {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 0% -200%;
     }
 }
 

@@ -1,4 +1,12 @@
 // const log = console.log;
+// MEMORY DETAILS
+let MEMORY_ = {
+    localStorage: {
+        bestResult: 'bestResult',
+        achievement: 'st-ach',
+        installNo: 'installDismissed'
+    }
+}
 // GAME DETAILS
 let GAME_ = {
     // Get IOS, Android, Windows, Mac or Linux
@@ -27,7 +35,7 @@ let GAME_ = {
     score: 0,
     combo: 0,
     gamesPlayed: 0,
-    bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
+    bestResult: window.localStorage.getItem(MEMORY_.localStorage.bestResult) ?? 0,
     newRecord: false, // TO RESET SCREEN
     designPalette: 0,
     //
@@ -93,6 +101,11 @@ let GAME_ = {
     // STACK ARR
     stackBoxArr : [], 
     outBoxArr : [],
+    achievement: JSON.parse(window.localStorage.getItem(MEMORY_.localStorage.achievement)) ?? {
+        default: {
+            message: "Default",
+        }
+    }
 }
 
 
@@ -276,6 +289,30 @@ window.addEventListener('load', ()=>{
         5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
         );
     }
+
+    GAME_.unlockAchieve = (achieve, message) => {
+        if (achieve in GAME_.achievement)
+            return;
+
+        // Save
+        GAME_.achievement[achieve] = {
+            message
+        }
+        // Show
+        document.querySelector('#achie-text .message').innerHTML = message;
+        // Reset
+        document.querySelector('#achie-popup').classList.remove('display');
+        // Push
+        document.querySelector('#achie-popup').classList.add('display');
+        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        ,
+        5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+        );
+        // Save memory
+        localStorage.setItem(MEMORY_.localStorage.achievement, JSON.stringify(GAME_.achievement));
+    }
+    // Set global
+    let unlockAchieve = GAME_.unlockAchieve;
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -421,6 +458,7 @@ window.addEventListener('load', ()=>{
 
                 // CHANGE BEST_SCORE TO SCORE
                 scoreTab.querySelector('.score').innerHTML = "SCORE";
+
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
@@ -479,6 +517,18 @@ window.addEventListener('load', ()=>{
                     }
 
                     GAME_.combo += 1;
+
+                    switch (GAME_.combo) {
+                        case 10:
+                            unlockAchieve('combo', 'Combo Master');
+                            break;
+                        case 20:
+                            unlockAchieve('combo2', 'Combo Super Master');
+                            break;
+                        case 30:
+                            unlockAchieve('combo3', 'Combo Super Master God');
+                            break;
+                    }
 
                     // SHOW TEXT
                     comboStrike.innerHTML = `x${GAME_.combo}`;
@@ -543,6 +593,10 @@ window.addEventListener('load', ()=>{
                 printPoints(GAME_.score);
 
             }else{
+                // FIRST TIME PLAYING o_O
+                if(!localStorage.getItem(MEMORY_.localStorage.bestResult))
+                    unlockAchieve('noob', 'First time playing');
+
                 // FINISH THE GAME
                 GAME_.end = true; // GAME.isEnd();
                 // FALL ANIMATION (CANNONJS)
@@ -573,7 +627,7 @@ window.addEventListener('load', ()=>{
                     // UPDATE LOCALSTORAGE
                     if (!GAME_.botMode) {
                         GAME_.bestResult = GAME_.score;
-                        window.localStorage.setItem('bestResult', GAME_.score);
+                        window.localStorage.setItem(MEMORY_.localStorage.bestResult, GAME_.score);
                     }
 
                     // SHOW NEWRECORD
@@ -597,7 +651,7 @@ window.addEventListener('load', ()=>{
                 if (GAME_.zoomOut.service)
                     GAME_.zoomOut.enable = true;
 
-                let dismissed = localStorage.getItem("installDismissed") ?? false; // Better than localStorage.getItem("installDismissed") || false
+                let dismissed = localStorage.getItem(MEMORY_.localStorage.installNo) ?? false; // Better than localStorage.getItem("installDismissed") || false
                 // CHECK PWA INSTALLATION (1.0.4 version)
                 if (enableDownload && (dismissed == "false" || !dismissed)){
                     document.querySelector('#pwa-install').classList.add('display');
@@ -606,6 +660,9 @@ window.addEventListener('load', ()=>{
                     }
                 }
                 GAME_.gamesPlayed++;
+
+                //!TODO: Remove it
+                unlockAchieve();
             }
         }
 
@@ -838,6 +895,7 @@ function playConfetti(min, max){
 
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.unlockAchieve('cheater', 'Faker, cheater... 🤬');
     GAME_.botMode = true;
     let botTimer = setInterval(()=>{
         try {
