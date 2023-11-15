@@ -660,6 +660,9 @@ window.addEventListener('load', ()=>{
                     }
                 }
                 GAME_.gamesPlayed++;
+
+                //!TODO: Remove it
+                unlockAchieve();
             }
         }
 
