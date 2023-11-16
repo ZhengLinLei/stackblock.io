@@ -1,4 +1,11 @@
-v0.1.6 -> 09/11/2023 -----------------------------------> TAG: v0.1.6.7
+v0.1.8 -> 17/11/2023 -----------------------------------> TAG: v0.1.8
+    - Changed Variable organization
+    - Changed all variable names
+    - Added achievement unlocked popup
+    - Added some achievements
+    - Added Funding config
+
+v0.1.7 -> 09/11/2023 -----------------------------------> TAG: v0.1.7
     * Today is my birthday 🎉 *
     - Fixed Apple Canvas resize and notch problem
     - Added FPS counter
