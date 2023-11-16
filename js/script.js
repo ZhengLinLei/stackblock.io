@@ -1,4 +1,12 @@
 // const log = console.log;
+// MEMORY DETAILS
+let MEMORY_ = {
+    localStorage: {
+        bestResult: 'bestResult',
+        achievement: 'st-ach',
+        installNo: 'installDismissed'
+    }
+}
 // GAME DETAILS
 let GAME_ = {
     // Get IOS, Android, Windows, Mac or Linux
@@ -27,7 +35,7 @@ let GAME_ = {
     score: 0,
     combo: 0,
     gamesPlayed: 0,
-    bestResult: (window.localStorage.getItem('bestResult')) ? window.localStorage.getItem('bestResult') : 0,
+    bestResult: window.localStorage.getItem(MEMORY_.localStorage.bestResult) ?? 0,
     newRecord: false, // TO RESET SCREEN
     designPalette: 0,
     //
@@ -54,41 +62,51 @@ let GAME_ = {
         framesMax: 20,
         finished: false
     }, // Zoom out the camera fter every game over
-}
 
-// ==================================
-// DEFINE STACK COLOR
-const colorDesign = [
-    [30, 70, 50],
-    [120, 80, 60],
-    [224, 68, 62],
-    [251, 50, 60],
-    [339, 62, 48],
-    [231, 50, 47],
-    [165, 30, 68]
-];
+    // DEFINE STACK COLOR
+    colorDesign : [
+        [30, 70, 50],
+        [120, 80, 60],
+        [224, 68, 62],
+        [251, 50, 60],
+        [339, 62, 48],
+        [231, 50, 47],
+        [165, 30, 68]
+    ],
 
-// DEFINE BOX SIZE
-const boxSize = {
-    x: 3,
-    y: 1,
-    z: 3,
-    range: 10
-}
-// DEFINE CAMERA POSITION
-const c_width = 10;
-const cameraPos = {
-    width: c_width,
-    height: c_width * (window.innerHeight/window.innerWidth),
-    near: 1,
-    far: 100,
-    size: (window.innerWidth > 700)? 1 : 2
-}
+    // DEFINE BOX SIZE
 
-// DEFINE VARIABLES
-let world, scene, camera, renderer, fncStart;
-// STACK ARR
-let stackBoxArr = [], outBoxArr = [];
+    boxSize : {
+        x: 3,
+        y: 1,
+        z: 3,
+        range: 10
+    },
+
+    // DEFINE CAMERA POSITION
+    c_width: 10,
+    cameraPos : {
+        width: 10,
+        height: 10 * (window.innerHeight/window.innerWidth),
+        near: 1,
+        far: 100,
+        size: (window.innerWidth > 700)? 1 : 2
+    },
+    // DEFINE VARIABLES
+    world: undefined, 
+    scene: undefined, 
+    camera: undefined, 
+    renderer: undefined, 
+    fncStart: undefined,
+    // STACK ARR
+    stackBoxArr : [], 
+    outBoxArr : [],
+    achievement: JSON.parse(window.localStorage.getItem(MEMORY_.localStorage.achievement)) ?? {
+        default: {
+            message: "Default",
+        }
+    }
+}
 
 
 window.addEventListener('load', ()=>{
@@ -117,11 +135,11 @@ window.addEventListener('load', ()=>{
     =   FUNCTIONS
     ============================================*/
     function changeBackground(hslDark = false){
-        let hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]);
-        scene.background = new THREE.Color(hex);
+        let hex = hslToHex(GAME_.colorDesign[GAME_.designPalette][0] + 120 + (GAME_.stackBoxArr.length), GAME_.colorDesign[GAME_.designPalette][1], GAME_.colorDesign[GAME_.designPalette][2]);
+        GAME_.scene.background = new THREE.Color(hex);
 
         // Add a dark layer background rgba(0, 0, 0, .8)
-        if (hslDark) hex = hslToHex(colorDesign[GAME_.designPalette][0] + 120 + (stackBoxArr.length), colorDesign[GAME_.designPalette][1], 10);
+        if (hslDark) hex = hslToHex(GAME_.colorDesign[GAME_.designPalette][0] + 120 + (GAME_.stackBoxArr.length), GAME_.colorDesign[GAME_.designPalette][1], 10);
         // Change theme-color
         document.querySelector('meta[name="theme-color"]').setAttribute("content", hex);
         document.body.style.backgroundColor = hex;
@@ -136,39 +154,39 @@ window.addEventListener('load', ()=>{
     }
     // CREATE OUTBOX AND FALLING ANIMATION
     function addOutBox(x, z, width, depth){
-        const layerY = boxSize.y * (stackBoxArr.length-1);
+        const layerY = GAME_.boxSize.y * (GAME_.stackBoxArr.length-1);
 
         const outBox = generateBox(x, layerY, z, width, depth, true);
 
-        outBoxArr.push(outBox);
+        GAME_.outBoxArr.push(outBox);
     }
     function updatePhisics(){
-        world.step(1/60); // 60fps
+        GAME_.world.step(1/60); // 60fps
 
         // FOREACH OUTBOX AND DEFINE THEIR POSITION
-        outBoxArr.forEach(i =>{
+        GAME_.outBoxArr.forEach(i =>{
             i.threejs.position.copy(i.cannonjs.position); // EXTRACT ALL DATA TO THREEJS
             i.threejs.quaternion.copy(i.cannonjs.quaternion); // EXTRACT ALL DATA TO THREEJS
         });
     }
     // CREATE INLINE BOX
     function addLayer(x, z, width, depth, direction){
-        const layerY = boxSize.y * stackBoxArr.length; // ELEVATE LAYER LEVEL ONCE THE BOX HAS BEEN PUSHED
+        const layerY = GAME_.boxSize.y * GAME_.stackBoxArr.length; // ELEVATE LAYER LEVEL ONCE THE BOX HAS BEEN PUSHED
 
         const layer = generateBox(x, layerY, z, width, depth, false);
         layer.direction = direction;
         layer.positive = true; // THE NEW BOX WILL MOVE INTO POSITIVE VALUES
 
-        stackBoxArr.push(layer);
+        GAME_.stackBoxArr.push(layer);
 
     }
     function generateBox(x, y, z, width, depth, animation = false){
 
-        let colorPath = (animation) ? (stackBoxArr.length-1)*4 : stackBoxArr.length*4; // IF IT IS AN OUTBOX, GENERATE THE SAME COLOR AS THE INBOX
+        let colorPath = (animation) ? (GAME_.stackBoxArr.length-1)*4 : GAME_.stackBoxArr.length*4; // IF IT IS AN OUTBOX, GENERATE THE SAME COLOR AS THE INBOX
 
-        const color = new THREE.Color(hslToHex(colorDesign[GAME_.designPalette][0] + (colorPath), colorDesign[GAME_.designPalette][1], colorDesign[GAME_.designPalette][2]));
+        const color = new THREE.Color(hslToHex(GAME_.colorDesign[GAME_.designPalette][0] + (colorPath), GAME_.colorDesign[GAME_.designPalette][1], GAME_.colorDesign[GAME_.designPalette][2]));
 
-        const geometry = new THREE.BoxGeometry(width, boxSize.y, depth);
+        const geometry = new THREE.BoxGeometry(width, GAME_.boxSize.y, depth);
         const material = new THREE.MeshLambertMaterial({ color });
 
         const mesh = new THREE.Mesh(geometry, material);
@@ -176,14 +194,14 @@ window.addEventListener('load', ()=>{
 
         // FALL ANIMATION (CANNONJS)
         const shape = new CANNON.Box(
-            new CANNON.Vec3(width/2, boxSize.y/2, depth/2) // CENTER
+            new CANNON.Vec3(width/2, (GAME_.boxSize.y)/2, depth/2) // CENTER
         );
         let mass = animation ? 5 : 0; // WHEN THE OBJECT HAS GOT 0 AS VALUE THE OBJECT WILL NOT BE AFFECTED BY THE GRAVITY
         const body = new CANNON.Body({ mass, shape });
         body.position.set(x, y, z);
-        world.addBody(body);
+        GAME_.world.addBody(body);
         // ADD ITEM TO SCENE
-        scene.add(mesh);
+        GAME_.scene.add(mesh);
 
         return {
             threejs: mesh,
@@ -214,11 +232,11 @@ window.addEventListener('load', ()=>{
 
     // CHANGE CAMERA DATA
     function refreshCameraView() {
-        camera.right = cameraPos.width / cameraPos.size;
-        camera.left = cameraPos.width / -cameraPos.size;
-        camera.top = cameraPos.height / cameraPos.size; 
-        camera.bottom = cameraPos.height / -cameraPos.size;
-        camera.updateProjectionMatrix();
+        GAME_.camera.right = GAME_.cameraPos.width / GAME_.cameraPos.size;
+        GAME_.camera.left = GAME_.cameraPos.width / -GAME_.cameraPos.size;
+        GAME_.camera.top = GAME_.cameraPos.height / GAME_.cameraPos.size; 
+        GAME_.camera.bottom = GAME_.cameraPos.height / -GAME_.cameraPos.size;
+        GAME_.camera.updateProjectionMatrix();
     }
 
     // GET ms NOW()
@@ -251,13 +269,13 @@ window.addEventListener('load', ()=>{
 
     function resizeCanvas() {
         // Resize canvas
-        cameraPos.height = c_width * (window.innerHeight/window.innerWidth);
-        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        GAME_.cameraPos.height = GAME_.c_width * (window.innerHeight/window.innerWidth);
+        GAME_.cameraPos.size = (window.innerWidth > 700)? 1 : 2;
         refreshCameraView()
 
         // Resize canvas
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.render(scene, camera);
+        GAME_.renderer.setSize(window.innerWidth, window.innerHeight);
+        GAME_.renderer.render(GAME_.scene, GAME_.camera);
     }
 
     function alertLog(text){
@@ -271,43 +289,67 @@ window.addEventListener('load', ()=>{
         5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
         );
     }
+
+    GAME_.unlockAchieve = (achieve, message) => {
+        if (achieve in GAME_.achievement)
+            return;
+
+        // Save
+        GAME_.achievement[achieve] = {
+            message
+        }
+        // Show
+        document.querySelector('#achie-text .message').innerHTML = message;
+        // Reset
+        document.querySelector('#achie-popup').classList.remove('display');
+        // Push
+        document.querySelector('#achie-popup').classList.add('display');
+        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        ,
+        5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
+        );
+        // Save memory
+        localStorage.setItem(MEMORY_.localStorage.achievement, JSON.stringify(GAME_.achievement));
+    }
+    // Set global
+    let unlockAchieve = GAME_.unlockAchieve;
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
-        GAME_.designPalette = Math.floor(Math.random() * colorDesign.length);
+        GAME_.designPalette = Math.floor(Math.random() * GAME_.colorDesign.length);
 
         // CAMERA
-        cameraPos.size = (window.innerWidth > 700)? 1 : 2;
+        GAME_.cameraPos.size = (window.innerWidth > 700)? 1 : 2;
         refreshCameraView();
-        camera.position.set(4, 4, 4);
-        camera.lookAt(0, 0, 0);
+        GAME_.camera.position.set(4, 4, 4);
+        GAME_.camera.lookAt(0, 0, 0);
 
         // OPEN zoomOut
         GAME_.zoomOut.finished = false;
 
         // SCENE & WORLD
-        stackBoxArr.forEach(i =>{
-            scene.remove(i.threejs);
+        GAME_.stackBoxArr.forEach(i =>{
+            GAME_.scene.remove(i.threejs);
 
 			// clean up
 			i.geometry.dispose();
 			i.material.dispose();
 
             //====
-            world.removeBody(i.cannonjs);
+            GAME_.world.removeBody(i.cannonjs);
         });
-        outBoxArr.forEach(i =>{
-            scene.remove(i.threejs);
+        GAME_.outBoxArr.forEach(i =>{
+            GAME_.scene.remove(i.threejs);
 
 			// clean up
 			i.geometry.dispose();
 			i.material.dispose();
 
             //====
-            world.removeBody(i.cannonjs);
+            GAME_.world.removeBody(i.cannonjs);
         });
 
-        stackBoxArr = [], outBoxArr = [];
+        GAME_.stackBoxArr = [], GAME_.outBoxArr = [];
 
         // POINTS AND COMBO
         GAME_.score = 0;
@@ -317,7 +359,7 @@ window.addEventListener('load', ()=>{
         changeBackground();
 
         // FIRST LAYER
-        addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
+        addLayer(0, 0, GAME_.boxSize.x, GAME_.boxSize.z, 'x'); // TOP LEVEL
 
         // DISABLE PWA IF EXIST
         document.querySelector('#pwa-install').classList.remove('display');
@@ -331,53 +373,53 @@ window.addEventListener('load', ()=>{
 
     // =============================================
     // WORLD DEFINE
-    world = new CANNON.World();
-    world.gravity.set(0, -9.8, 0);
-    world.broadphase = new CANNON.NaiveBroadphase();
-    world.solver.interations = 40;
+    GAME_.world = new CANNON.World();
+    GAME_.world.gravity.set(0, -9.8, 0);
+    GAME_.world.broadphase = new CANNON.NaiveBroadphase();
+    GAME_.world.solver.interations = 40;
 
     // SHOW BEST RESULT
     printPoints(GAME_.bestResult);
 
     // CREATE THE SCENE AND DECORATE IT
-    scene = new THREE.Scene();
+    GAME_.scene = new THREE.Scene();
     changeBackground(hslDark = true);    
 
-    addLayer(0, 0, boxSize.x, boxSize.z, 'x'); // TOP LEVEL
+    addLayer(0, 0, GAME_.boxSize.x, GAME_.boxSize.z, 'x'); // TOP LEVEL
 
 
     // ILUMINATION
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    GAME_.scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(10, 20, 0);
-    scene.add(directionalLight);
+    GAME_.scene.add(directionalLight);
 
     // CAMERA
-    camera = new THREE.OrthographicCamera(
-        cameraPos.width / -cameraPos.size, // left
-        cameraPos.width / cameraPos.size, // right
-        cameraPos.height / cameraPos.size, // top
-        cameraPos.height / -cameraPos.size, // bottom
-        cameraPos.near, // near
-        cameraPos.far // far
+    GAME_.camera = new THREE.OrthographicCamera(
+        GAME_.cameraPos.width / -GAME_.cameraPos.size, // left
+        GAME_.cameraPos.width / GAME_.cameraPos.size, // right
+        GAME_.cameraPos.height / GAME_.cameraPos.size, // top
+        GAME_.cameraPos.height / -GAME_.cameraPos.size, // bottom
+        GAME_.cameraPos.near, // near
+        GAME_.cameraPos.far // far
     );
-    camera.position.set(4, 4, 4);
-    camera.lookAt(0, 0, 0);
+    GAME_.camera.position.set(4, 4, 4);
+    GAME_.camera.lookAt(0, 0, 0);
 
     // RENDER SCENE
-    renderer = new THREE.WebGLRenderer(
+    GAME_.renderer = new THREE.WebGLRenderer(
         { 
             antialias: true,
             // preserveDrawingBuffer: true 
         });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.render(scene, camera);
+    GAME_.renderer.setSize(window.innerWidth, window.innerHeight);
+    GAME_.renderer.render(GAME_.scene, GAME_.camera);
 
-    renderer.domElement.id = "Stackblock";
+    GAME_.renderer.domElement.id = "Stackblock";
     // DISPLAY
-    document.body.appendChild(renderer.domElement);
+    document.body.appendChild(GAME_.renderer.domElement);
 
     // GET CONFETTI RANGE
     if ('deviceMemory' in navigator) {
@@ -416,6 +458,7 @@ window.addEventListener('load', ()=>{
 
                 // CHANGE BEST_SCORE TO SCORE
                 scoreTab.querySelector('.score').innerHTML = "SCORE";
+
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
@@ -423,7 +466,7 @@ window.addEventListener('load', ()=>{
             printPoints(GAME_.score); // = 0
 
             // ADD ACTION LAYER
-            addLayer(0, 0, boxSize.x, boxSize.z, 'z');
+            addLayer(0, 0, GAME_.boxSize.x, GAME_.boxSize.z, 'z');
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
@@ -442,8 +485,8 @@ window.addEventListener('load', ()=>{
             // INIT
             let newWidth, newDepth;
             // ========
-            const lastLayer = stackBoxArr[stackBoxArr.length -1];
-            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+            const lastLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
+            const previousLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -2];
 
             // LAST LAYER DIRECTION
             let lastDirection = lastLayer.direction;
@@ -475,6 +518,18 @@ window.addEventListener('load', ()=>{
 
                     GAME_.combo += 1;
 
+                    switch (GAME_.combo) {
+                        case 10:
+                            unlockAchieve('combo', 'Combo Master');
+                            break;
+                        case 20:
+                            unlockAchieve('combo2', 'Combo Super Master');
+                            break;
+                        case 30:
+                            unlockAchieve('combo3', 'Combo Super Master God');
+                            break;
+                    }
+
                     // SHOW TEXT
                     comboStrike.innerHTML = `x${GAME_.combo}`;
                     comboStrike.classList.add('open'); // VISIBLE
@@ -503,7 +558,7 @@ window.addEventListener('load', ()=>{
                 // UPDATE PHISICS AND CREATE THE NEW SHAPE
                 lastLayer.cannonjs.position[lastDirection] -= delta / 2; 
                 const shape = new CANNON.Box(
-                    new CANNON.Vec3(newWidth/2, boxSize.y/2, newDepth/2) // CENTER
+                    new CANNON.Vec3(newWidth/2, (GAME_.boxSize.y)/2, newDepth/2) // CENTER
                 );
 
                 lastLayer.cannonjs.shapes = [];
@@ -525,8 +580,8 @@ window.addEventListener('load', ()=>{
                     addOutBox(outboxPos.x, outboxPos.z, outboxPos.width, outboxPos.depth);
                 }
                 // NEW LAYER ==================
-                let x = (lastDirection === "x")? lastLayer.threejs.position.x : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
-                let z = (lastDirection === "z")? lastLayer.threejs.position.z : -(boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
+                let x = (lastDirection === "x")? lastLayer.threejs.position.x : -(GAME_.boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
+                let z = (lastDirection === "z")? lastLayer.threejs.position.z : -(GAME_.boxSize.range-1); // AVOID COLAPSE WITH LIMIT COLISION IN -10
 
                 let direction = (lastDirection === "x")? "z" : "x";
 
@@ -538,18 +593,22 @@ window.addEventListener('load', ()=>{
                 printPoints(GAME_.score);
 
             }else{
+                // FIRST TIME PLAYING o_O
+                if(!localStorage.getItem(MEMORY_.localStorage.bestResult))
+                    unlockAchieve('noob', 'First time playing');
+
                 // FINISH THE GAME
                 GAME_.end = true; // GAME.isEnd();
                 // FALL ANIMATION (CANNONJS)
-                world.remove(lastLayer.cannonjs); // FIRST REMOVE THE STATIC BODY
+                GAME_.world.remove(lastLayer.cannonjs); // FIRST REMOVE THE STATIC BODY
 
                 const shape = new CANNON.Box(
-                    new CANNON.Vec3(lastLayer.width/2, boxSize.y/2, lastLayer.depth/2) // CENTER
+                    new CANNON.Vec3(lastLayer.width/2, GAME_.boxSize.y/2, lastLayer.depth/2) // CENTER
                 );
                 let mass = 5; // WHEN THE OBJECT HAS GOT 0 AS VALUE THE OBJECT WILL NOT BE AFFECTED BY THE GRAVITY
                 const body = new CANNON.Body({ mass, shape });
                 body.position.set(lastLayer.threejs.position.x, lastLayer.threejs.position.y, lastLayer.threejs.position.z);
-                world.addBody(body); // ADD THE DYNAMIC BODY
+                GAME_.world.addBody(body); // ADD THE DYNAMIC BODY
 
                 lastLayer.cannonjs = body;
 
@@ -568,7 +627,7 @@ window.addEventListener('load', ()=>{
                     // UPDATE LOCALSTORAGE
                     if (!GAME_.botMode) {
                         GAME_.bestResult = GAME_.score;
-                        window.localStorage.setItem('bestResult', GAME_.score);
+                        window.localStorage.setItem(MEMORY_.localStorage.bestResult, GAME_.score);
                     }
 
                     // SHOW NEWRECORD
@@ -592,7 +651,7 @@ window.addEventListener('load', ()=>{
                 if (GAME_.zoomOut.service)
                     GAME_.zoomOut.enable = true;
 
-                let dismissed = localStorage.getItem("installDismissed") ?? false; // Better than localStorage.getItem("installDismissed") || false
+                let dismissed = localStorage.getItem(MEMORY_.localStorage.installNo) ?? false; // Better than localStorage.getItem("installDismissed") || false
                 // CHECK PWA INSTALLATION (1.0.4 version)
                 if (enableDownload && (dismissed == "false" || !dismissed)){
                     document.querySelector('#pwa-install').classList.add('display');
@@ -601,6 +660,9 @@ window.addEventListener('load', ()=>{
                     }
                 }
                 GAME_.gamesPlayed++;
+
+                //!TODO: Remove it
+                unlockAchieve();
             }
         }
 
@@ -611,14 +673,14 @@ window.addEventListener('load', ()=>{
     function draw() {
         if(!GAME_.end){
             // MOVE TOP LAYER
-            const layer = stackBoxArr[stackBoxArr.length -1];
+            const layer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
             const speed = (layer.positive) ? 0.15 : -0.15;
 
             // CHECK LIMIT
-            if(layer.threejs.position[layer.direction] >= (boxSize.range-5)){ // LIMIT 5
+            if(layer.threejs.position[layer.direction] >= (GAME_.boxSize.range-5)){ // LIMIT 5
                 layer.positive = false;
             }
-            if(layer.threejs.position[layer.direction] <= -(boxSize.range-5)){ // LIMIT -5
+            if(layer.threejs.position[layer.direction] <= -(GAME_.boxSize.range-5)){ // LIMIT -5
                 layer.positive = true;
             }
             layer.threejs.position[layer.direction] += speed;
@@ -626,18 +688,18 @@ window.addEventListener('load', ()=>{
 
             // MOVE CAMERA INTO THE TOP
             // 4 IS THE CURRENT Y
-            if(camera.position.y < boxSize.y * (stackBoxArr.length - 2) + 4){
-                camera.position.y += speed;
+            if(GAME_.camera.position.y < GAME_.boxSize.y * (GAME_.stackBoxArr.length - 2) + 4){
+                GAME_.camera.position.y += speed;
             }
 
         }else{
             // FINISH LAST BOX ANIMATION
-            stackBoxArr[stackBoxArr.length-1].threejs.position.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.position); // EXTRACT ALL DATA TO THREEJS
-            stackBoxArr[stackBoxArr.length-1].threejs.quaternion.copy(stackBoxArr[stackBoxArr.length-1].cannonjs.quaternion); // EXTRACT ALL DATA TO THREEJS
+            GAME_.stackBoxArr[GAME_.stackBoxArr.length-1].threejs.position.copy(GAME_.stackBoxArr[GAME_.stackBoxArr.length-1].cannonjs.position); // EXTRACT ALL DATA TO THREEJS
+            GAME_.stackBoxArr[GAME_.stackBoxArr.length-1].threejs.quaternion.copy(GAME_.stackBoxArr[GAME_.stackBoxArr.length-1].cannonjs.quaternion); // EXTRACT ALL DATA TO THREEJS
 
             // CHECK IF ZOOM OUT IS ENABLED
             if (GAME_.zoomOut.enable) {
-                cameraPos.size -= 0.02;
+                GAME_.cameraPos.size -= 0.02;
                 refreshCameraView();
 
                 GAME_.zoomOut.frames ++;
@@ -651,7 +713,7 @@ window.addEventListener('load', ()=>{
         }
         
         updatePhisics();
-        renderer.render(scene, camera);
+        GAME_.renderer.render(GAME_.scene, GAME_.camera);
 
         // CHECK IF CLIENT REQUESTED TO TAKE A SCREENSHOT
         // This section of code must be executed after renderer.render(scene, camera) to avoid buffer cleaning
@@ -662,7 +724,7 @@ window.addEventListener('load', ()=>{
                 // TAKE THE SCREENSHOT AFTER ZOOMOUT, NOT BEFORE OR IN PROCESS
                 if(GAME_.zoomOut.finished) {
                     // CREATE A EXTRA CANVAS
-                    DrawCanvasCopy(renderer.domElement,
+                    DrawCanvasCopy(GAME_.renderer.domElement,
                         ctx => {
                             // BG
                             ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
@@ -833,11 +895,12 @@ function playConfetti(min, max){
 
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.unlockAchieve('cheater', 'Faker, cheater... 🤬');
     GAME_.botMode = true;
     let botTimer = setInterval(()=>{
         try {
-            const lastLayer = stackBoxArr[stackBoxArr.length -1];
-            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+            const lastLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
+            const previousLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -2];
         
             // LAST LAYER DIRECTION
             let lastDirection = lastLayer.direction;
