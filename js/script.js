@@ -298,6 +298,7 @@ window.addEventListener('load', ()=>{
         GAME_.achievement[achieve] = {
             message
         }
+        console.log(GAME_.achievement[achieve]);
         // Show
         document.querySelector('#achie-text .message').innerHTML = message;
         // Reset
@@ -660,9 +661,6 @@ window.addEventListener('load', ()=>{
                     }
                 }
                 GAME_.gamesPlayed++;
-
-                //!TODO: Remove it
-                unlockAchieve();
             }
         }
 
