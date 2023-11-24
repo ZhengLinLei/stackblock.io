@@ -25,24 +25,37 @@
     <link rel="stylesheet" href="./css/style.css">
     <title>StackBlock.io - Minigame</title>
 </head>
-<body>
-    <div>
-        <h1 class="point-result">0</h1>
-        <h2 class="combo-extra-point">+10</h2>
-        <h1 class="combo-strike">x0</h1>
+<body class="game-end">
+    <div class="game" id="game">
+        <div>
+            <h1 class="point-result">0</h1>
+            <h2 class="combo-extra-point">+10</h2>
+            <h1 class="combo-strike">x0</h1>
+        </div>
+        <main class="result-area">
+            <header class="score-tab">
+                <h3 class="best">NEW RECORD</h3>
+                <h3 class="score">BEST SCORE</h3>
+                <div class="color-shape"></div>
+            </header>
+    
+            <footer class="flash-text">
+                <p class="mobile-version">Touch the screen to start</p>
+                <p class="desktop-version">Click mouse to start</p>
+            </footer>
+        </main>
+        <!-- Lock achieve special section -->
+        <div id="unlock-achie" class="unlock-achie locks">
+            <img src="./img/unlock.png">
+        </div>
     </div>
-    <main class="result-area">
-        <header class="score-tab">
-            <h3 class="best">NEW RECORD</h3>
-            <h3 class="score">BEST SCORE</h3>
-            <div class="color-shape"></div>
-        </header>
 
-        <footer class="flash-text">
-            <p class="mobile-version">Touch the screen to start</p>
-            <p class="desktop-version">Click mouse to start</p>
-        </footer>
-    </main>
+    <div class="lobby" id="lobby">
+        <!-- Lock achieve special section -->
+        <div id="lock-achie" class="lock-achie locks">
+            <img src="./img/lock.png">
+        </div>
+    </div>
 
     <!-- Click Event Layer -->
     <section id="click-event" class="click-event"></section>
@@ -97,7 +110,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js" integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
     <script src="./js/lib/png2share.min.js"></script>
-    <script src="./js/script.min.js"></script>
+    <script src="./js/script.js"></script>
     <script>
         const V = "0.1.8";
         if ('serviceWorker' in navigator) {

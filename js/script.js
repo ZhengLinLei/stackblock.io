@@ -104,8 +104,10 @@ let GAME_ = {
     achievement: JSON.parse(window.localStorage.getItem(MEMORY_.localStorage.achievement)) ?? {
         default: {
             message: "Default",
-        }
-    }
+        },
+        length: 0,
+    },
+    achievementUnlockMin: 4,
 }
 
 
@@ -298,7 +300,12 @@ window.addEventListener('load', ()=>{
         GAME_.achievement[achieve] = {
             message
         }
-        console.log(GAME_.achievement[achieve]);
+
+        GAME_.achievement.length++;
+        // console.log(GAME_.achievement[achieve]);
+        if (GAME_.achievement.length > GAME_.achievementUnlockMin)
+            document.body.classList.add('unlocked-achie');
+
         // Show
         document.querySelector('#achie-text .message').innerHTML = message;
         // Reset
@@ -314,6 +321,9 @@ window.addEventListener('load', ()=>{
     }
     // Set global
     let unlockAchieve = GAME_.unlockAchieve;
+    console.log(GAME_.achievement.length, GAME_.achievementUnlockMin);
+    if (GAME_.achievement.length > GAME_.achievementUnlockMin)
+        document.body.classList.add('unlocked-achie');
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -420,7 +430,7 @@ window.addEventListener('load', ()=>{
 
     GAME_.renderer.domElement.id = "Stackblock";
     // DISPLAY
-    document.body.appendChild(GAME_.renderer.domElement);
+    document.body.querySelector('#game').appendChild(GAME_.renderer.domElement);
 
     // GET CONFETTI RANGE
     if ('deviceMemory' in navigator) {
@@ -471,6 +481,9 @@ window.addEventListener('load', ()=>{
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
+    
+            // REMOVE GAME-END
+            document.body.classList.remove('game-end');
 
             // DISABLE NEW RECORD
             if(GAME_.newRecord){
@@ -595,8 +608,7 @@ window.addEventListener('load', ()=>{
 
             }else{
                 // FIRST TIME PLAYING o_O
-                if(!localStorage.getItem(MEMORY_.localStorage.bestResult))
-                    unlockAchieve('noob', 'First time playing');
+                unlockAchieve('noob', 'First time playing');
 
                 // FINISH THE GAME
                 GAME_.end = true; // GAME.isEnd();
@@ -617,6 +629,8 @@ window.addEventListener('load', ()=>{
                 // ACTIVE RSULT AND DISPLAY POINTS
                 resultTabDom.classList.toggle('disable');
                 pointDom.classList.toggle('active');
+
+                document.body.classList.add('game-end')
                 
                 GAME_.status = false;
 
@@ -872,6 +886,10 @@ window.addEventListener('load', ()=>{
         // Resize canvas
         resizeCanvas();
     });
+
+    // Unlock achie section
+    document.querySelector('#unlock-achie').addEventListener('click', () => document.body.classList.add('lobby'));
+    document.querySelector('#lock-achie').addEventListener('click', () => document.body.classList.remove('lobby'));
 
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {
