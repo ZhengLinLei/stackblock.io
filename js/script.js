@@ -130,7 +130,6 @@ window.addEventListener('load', ()=>{
     let eventLayer = document.querySelector('#click-event');
     // RECORD SHARE
     let recordShare = document.querySelector('#record-share');
-    let body = document.querySelector('body');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
@@ -138,9 +137,10 @@ window.addEventListener('load', ()=>{
     // Shake animation, the duration is in milliseconds, the default is 1000 (1s)
     function AnimationShakeCamera(duration){
         // Shake Camera
-        document.querySelector('body').classList.add('html-page');
+        document.body.classList.add('html-page');
+        console.log("Enters into the function");
         function deactivate(){
-            document.querySelector('body').classList.remove('html-page');
+            document.body.classList.remove('html-page');
         }
         setTimeout(deactivate, duration? duration : 1000);
     }
