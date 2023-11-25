@@ -454,7 +454,6 @@ window.addEventListener('load', ()=>{
         if(!GAME_.status){
             // FIRST TIME PLAYING THE GAME?
             if(!GAME_.active){
-                AnimationShakeCamera();
                 // ANIMATION FRAME 60fps
                 // renderer.setAnimationLoop(animation);   -------> Doesn't have FPS control. Call 1/fps --> Higher FPSs higher velocity
 
