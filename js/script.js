@@ -108,8 +108,7 @@ let GAME_ = {
     }
 }
 
-
-window.addEventListener('load', ()=>{
+window.addEventListener('load', () =>{
     // CHECK USER BROSWER AND OS
     // IF OS == ios AND BROWSER == safari
     if(GAME_.platform === 'ios' && navigator.userAgent.match(/(Safari)/g)){
@@ -137,11 +136,8 @@ window.addEventListener('load', ()=>{
     // Shake animation, the duration is in milliseconds, the default is 1000 (1s)
     function AnimationShakeCamera(duration){
         // Shake Camera
-        document.body.classList.add('html-page');
-        function deactivate(){
-            document.body.classList.remove('html-page');
-        }
-        setTimeout(deactivate, duration? duration : 1000);
+        document.body.classList.add('camera-shake');
+        setTimeout(() => document.body.classList.remove('camera-shake'), duration ? duration : 1000);
     }
 
     function changeBackground(hslDark = false){
