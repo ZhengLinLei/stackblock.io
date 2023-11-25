@@ -130,10 +130,21 @@ window.addEventListener('load', ()=>{
     let eventLayer = document.querySelector('#click-event');
     // RECORD SHARE
     let recordShare = document.querySelector('#record-share');
-
+    let body = document.querySelector('body');
     /* ==========================================
     =   FUNCTIONS
     ============================================*/
+    
+    // Shake animation, the duration is in milliseconds, the default is 1000 (1s)
+    function AnimationShakeCamera(duration){
+        // Shake Camera
+        document.querySelector('body').classList.add('html-page');
+        function deactivate(){
+            document.querySelector('body').classList.remove('html-page');
+        }
+        setTimeout(deactivate, duration? duration : 1000);
+    }
+
     function changeBackground(hslDark = false){
         let hex = hslToHex(GAME_.colorDesign[GAME_.designPalette][0] + 120 + (GAME_.stackBoxArr.length), GAME_.colorDesign[GAME_.designPalette][1], GAME_.colorDesign[GAME_.designPalette][2]);
         GAME_.scene.background = new THREE.Color(hex);
@@ -318,7 +329,6 @@ window.addEventListener('load', ()=>{
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
         GAME_.designPalette = Math.floor(Math.random() * GAME_.colorDesign.length);
-
         // CAMERA
         GAME_.cameraPos.size = (window.innerWidth > 700)? 1 : 2;
         refreshCameraView();
@@ -442,9 +452,9 @@ window.addEventListener('load', ()=>{
 
         // ACTIVE GAME STATUS
         if(!GAME_.status){
-
             // FIRST TIME PLAYING THE GAME?
             if(!GAME_.active){
+                AnimationShakeCamera();
                 // ANIMATION FRAME 60fps
                 // renderer.setAnimationLoop(animation);   -------> Doesn't have FPS control. Call 1/fps --> Higher FPSs higher velocity
 
