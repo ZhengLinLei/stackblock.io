@@ -138,7 +138,6 @@ window.addEventListener('load', ()=>{
     function AnimationShakeCamera(duration){
         // Shake Camera
         document.body.classList.add('html-page');
-        console.log("Enters into the function");
         function deactivate(){
             document.body.classList.remove('html-page');
         }
