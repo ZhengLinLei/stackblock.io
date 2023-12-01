@@ -403,7 +403,7 @@ window.addEventListener('load', ()=>{
         // Reset
         document.querySelector('#noti-popup').classList.remove('display');
         // Push
-        document.querySelector('#noti-popup-text').innerText = text;
+        document.querySelector('#noti-popup-text').innerHTML = text;
         document.querySelector('#noti-popup').classList.add('display');
         setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
         ,
@@ -762,8 +762,9 @@ window.addEventListener('load', ()=>{
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
                     // START NEW RECORD SOUND EFFECT
-                    GAME_.soundTrack.other.newRecord.currentTime = 0;
-                    GAME_.soundTrack.other.newRecord.play();
+                    //!TODO This is a rick roll music, don't enable it
+                    // GAME_.soundTrack.other.newRecord.currentTime = 0;
+                    // GAME_.soundTrack.other.newRecord.play();
 
                     playConfetti(GAME_.confetti.range[0], GAME_.confetti.range[1]); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
@@ -788,11 +789,13 @@ window.addEventListener('load', ()=>{
                         }
                         GAME_.screenshot.enable = true;
                     }
-                } else {
+                } 
+                //!TODO ADD TWO TYPES OF BG AFTER END
+                // else {
                     // START END SOUND EFFECT
                     GAME_.soundTrack.other.end.currentTime = 0;
                     GAME_.soundTrack.other.end.play();
-                }
+                // }
 
                 // START MENU BG
                 GAME_.soundTrack.menu.current.play();
@@ -1041,4 +1044,6 @@ window.addEventListener('load', ()=>{
             }
         }
     }, false);
+
+    alertLog("This is an <span style='background: rgb(255, 100, 0);'><b>&nbsp;experimental version&nbsp;</b></span>, don't consider this a final version");
 });
