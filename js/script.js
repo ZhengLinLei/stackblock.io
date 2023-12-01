@@ -437,7 +437,7 @@ window.addEventListener('load', ()=>{
         document.querySelector('#achie-popup').classList.remove('display');
         // Push
         document.querySelector('#achie-popup').classList.add('display');
-        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        setTimeout(() => document.querySelector('#achie-popup').classList.remove('display')
         ,
         5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
         );
@@ -446,7 +446,6 @@ window.addEventListener('load', ()=>{
     }
     // Set global
     let unlockAchieve = GAME_.unlockAchieve;
-    console.log(GAME_.achievement.length, GAME_.achievementUnlockMin);
     if (GAME_.achievement.length > GAME_.achievementUnlockMin)
         document.body.classList.add('unlocked-achie');
     
