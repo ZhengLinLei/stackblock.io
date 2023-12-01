@@ -72,7 +72,7 @@ let GAME_ = {
         [231, 50, 47],
         [165, 30, 68]
     ],
-    
+
     // DEFINE BOX SIZE
 
     boxSize : {
@@ -81,7 +81,7 @@ let GAME_ = {
         z: 3,
         range: 10
     },
-    
+
     // DEFINE CAMERA POSITION
     c_width: 10,
     cameraPos : {
@@ -103,8 +103,11 @@ let GAME_ = {
     achievement: JSON.parse(window.localStorage.getItem(MEMORY_.localStorage.achievement)) ?? {
         default: {
             message: "Default",
-        }
+        },
+        length: 0,
     },
+    achievementUnlockMin: 4,
+    // Sountrack list
     soundTrack: {
         menu: {
             name: "menu",
@@ -134,7 +137,8 @@ let GAME_ = {
         },
         load: null,
         next: null,
-    }
+    },
+
 }
 
 // ==================================
