@@ -62,7 +62,6 @@ let GAME_ = {
         framesMax: 20,
         finished: false
     }, // Zoom out the camera fter every game over
-
     // DEFINE STACK COLOR
     colorDesign : [
         [30, 70, 50],
@@ -108,10 +107,140 @@ let GAME_ = {
         length: 0,
     },
     achievementUnlockMin: 4,
+    // Sountrack list
+    soundTrack: {
+        menu: {
+            name: "menu",
+            current: null,
+            next: null,
+            list: [
+                'Hello_its_Me_00_Pix_64kbps.mp3',
+                // 'Dark_Sanctum_00_Uname_World_00kps.mp3'
+            ],
+        },
+        game: {
+            name: "game",
+            current: [null, null, null],
+            next: [null, null, null],
+            list: [
+                ['Begin_Your_Journey_', '_Pix_64kbps.mp3'],
+                ['Dark_Sanctum_', '_Uname_World_00kps.mp3'],
+            ],
+        },
+        other: {
+            name: "other",
+            list: [
+                ['Start_Game_effect.mp3', 'start'],
+                ['End_Game_effect.mp3', 'end'],
+                ['New_Record_effect.mp3', 'newRecord'],
+            ],
+        },
+        load: null,
+        next: null,
+    },
+
+}
+
+// ==================================
+
+// PARTY FNC
+function playConfetti(min, max){
+    party.confetti(party.Rect.fromScreen(), {
+        count: party.variation.range(min?min:60, max?max:80),
+    });
+}
+
+// ALPHABOT v1.0 INTERNAL BOT FOR TESTING
+function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.unlockAchieve('cheater', 'Faker, cheater... 🤬');
+    GAME_.botMode = true;
+    let botTimer = setInterval(()=>{
+        try {
+            const lastLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
+            const previousLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -2];
+        
+            // LAST LAYER DIRECTION
+            let lastDirection = lastLayer.direction;
+        
+            // CALCULATE OUTBOX 
+            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
+            let alpha = Math.abs(delta); // GET POSITIVE NUM
+        
+            // CALCULATE OUTBOX WIDTH DEPTH
+            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
+            let inbox = outbox - alpha;
+                
+            const boxRelation = inbox / outbox; // 0 to 1
+            if(boxRelation >= (precision?precision:0.95)){
+                fncStart();
+                if(output){
+                    console.log(boxRelation); // OUTPUT
+                }
+            }
+        } catch (e) {
+            // BY DEFAULT START GAME
+            fncStart();
+        }
+    }, timer?timer:20);
+}
+
+// LOAD MUSIC
+GAME_.soundTrack.load = (type, list) => {
+    let a;
+    // Random list or set string
+    let target = (list.constructor === Array) ? list[Math.floor(Math.random() * list.length)] : list
+    // Two types: [menu, game, other]
+    if (type == 'game') {
+        a = [null, null, null];
+        for(let i = 0; i < 3; i++) {
+            a[i] = new Audio(`./music/${type}/${target[0]}0${i}${target[1]}`);
+            a[i].loop = true;
+            a[i].currentTime = 0;
+            //
+            a[i].addEventListener('ended', () => {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+        }
+    } else {
+        a = new Audio(`./music/${type}/${target}`);
+        a.currentTime = 0;
+        if (type != "other") {
+            // Add loop
+            a.loop = true;
+            // And force it in case that browser doesn't support it
+            a.addEventListener('ended', () => {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+        }        
+    }
+
+    return a;
+}
+
+// PASS TO NEXT AUDIO AND LOAD NEW
+GAME_.soundTrack.next = (obj) => {
+    obj.current = obj.next.slice(0);
+    obj.next = null;
+    obj.next = GAME_.soundTrack.load(obj.name, obj.list);
 }
 
 
+// PRELOAD MENU MUSIC AND BG MUSIC
+GAME_.soundTrack.menu.current = GAME_.soundTrack.load('menu', GAME_.soundTrack.menu.list);
+GAME_.soundTrack.game.current = GAME_.soundTrack.load('game', GAME_.soundTrack.game.list);
+GAME_.soundTrack.game.next = GAME_.soundTrack.load('game', GAME_.soundTrack.game.list);
+
+// PRELOAD SOUND EFFECT
+GAME_.soundTrack.other.list.forEach(el => {
+    GAME_.soundTrack.other[el[1]] = GAME_.soundTrack.load('other', el[0]);
+});
+
 window.addEventListener('load', ()=>{
+    // PLAY MENU BG (NOT WORKING DUE PRIVILEGIES) 
+    //!TODO CHANGE IT
+    GAME_.soundTrack.menu.current.play();
     // CHECK USER BROSWER AND OS
     // IF OS == ios AND BROWSER == safari
     if(GAME_.platform === 'ios' && navigator.userAgent.match(/(Safari)/g)){
@@ -217,8 +346,6 @@ window.addEventListener('load', ()=>{
             depth
         }
     }
-
-
     // COLOR HSL TO HEX
     function hslToHex(h, s, l) {
         l = (l>101)?100:l;
@@ -231,7 +358,6 @@ window.addEventListener('load', ()=>{
         };
         return `#${f(0)}${f(8)}${f(4)}`;
     }
-
     // CHANGE CAMERA DATA
     function refreshCameraView() {
         GAME_.camera.right = GAME_.cameraPos.width / GAME_.cameraPos.size;
@@ -240,7 +366,6 @@ window.addEventListener('load', ()=>{
         GAME_.camera.bottom = GAME_.cameraPos.height / -GAME_.cameraPos.size;
         GAME_.camera.updateProjectionMatrix();
     }
-
     // GET ms NOW()
     function timeNow() {
         if ('now' in window) return now();
@@ -284,7 +409,7 @@ window.addEventListener('load', ()=>{
         // Reset
         document.querySelector('#noti-popup').classList.remove('display');
         // Push
-        document.querySelector('#noti-popup-text').innerText = text;
+        document.querySelector('#noti-popup-text').innerHTML = text;
         document.querySelector('#noti-popup').classList.add('display');
         setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
         ,
@@ -312,7 +437,7 @@ window.addEventListener('load', ()=>{
         document.querySelector('#achie-popup').classList.remove('display');
         // Push
         document.querySelector('#achie-popup').classList.add('display');
-        setTimeout(() => document.querySelector('#noti-popup').classList.remove('display')
+        setTimeout(() => document.querySelector('#achie-popup').classList.remove('display')
         ,
         5200 // IF YOU CAHNGE THE DELAY TIME, YOU MUST CHANGE CSS CODE
         );
@@ -321,7 +446,6 @@ window.addEventListener('load', ()=>{
     }
     // Set global
     let unlockAchieve = GAME_.unlockAchieve;
-    console.log(GAME_.achievement.length, GAME_.achievementUnlockMin);
     if (GAME_.achievement.length > GAME_.achievementUnlockMin)
         document.body.classList.add('unlocked-achie');
     
@@ -473,6 +597,18 @@ window.addEventListener('load', ()=>{
             }else{
                 reset(); // WHEN IT ISN'T THE FIRST TIME, ONLY HAVE TO RESET THE WORLD
             }
+
+            // PLAY TRANSITION START
+            GAME_.soundTrack.other.start.currentTime = 0;  // Move audio start to beginning
+            GAME_.soundTrack.other.start.play();
+
+
+            // STOP MENU BG MUSIC
+            GAME_.soundTrack.menu.current.currentTime = 0;  // Move audio start to beginning
+            GAME_.soundTrack.menu.current.pause();
+
+            // START GAME MUSIC
+            GAME_.soundTrack.game.current[0].play();
 
             printPoints(GAME_.score); // = 0
 
@@ -634,9 +770,19 @@ window.addEventListener('load', ()=>{
                 
                 GAME_.status = false;
 
+                // STOP GAME BG
+                GAME_.soundTrack.game.current[0].pause();
+                GAME_.soundTrack.next(
+                    GAME_.soundTrack.game
+                );
 
                 // CHECK BEST SCORE
                 if(GAME_.score > GAME_.bestResult){
+                    // START NEW RECORD SOUND EFFECT
+                    //!TODO This is a rick roll music, don't enable it
+                    // GAME_.soundTrack.other.newRecord.currentTime = 0;
+                    // GAME_.soundTrack.other.newRecord.play();
+
                     playConfetti(GAME_.confetti.range[0], GAME_.confetti.range[1]); // PARTY YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!!!!!!!!!!!!
 
                     // UPDATE LOCALSTORAGE
@@ -660,7 +806,16 @@ window.addEventListener('load', ()=>{
                         }
                         GAME_.screenshot.enable = true;
                     }
-                }
+                } 
+                //!TODO ADD TWO TYPES OF BG AFTER END
+                // else {
+                    // START END SOUND EFFECT
+                    GAME_.soundTrack.other.end.currentTime = 0;
+                    GAME_.soundTrack.other.end.play();
+                // }
+
+                // START MENU BG
+                GAME_.soundTrack.menu.current.play();
                 
                 // ACTIVE ZOOMOUT
                 if (GAME_.zoomOut.service)
@@ -899,46 +1054,17 @@ window.addEventListener('load', ()=>{
         }
 
     });
-});
 
-
-// PARTY FNC
-function playConfetti(min, max){
-    party.confetti(party.Rect.fromScreen(), {
-        count: party.variation.range(min?min:60, max?max:80),
-    });
-}
-
-// ALPHABOT v1.0 INTERNAL BOT FOR TESTING
-function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
-    GAME_.unlockAchieve('cheater', 'Faker, cheater... 🤬');
-    GAME_.botMode = true;
-    let botTimer = setInterval(()=>{
-        try {
-            const lastLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
-            const previousLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -2];
-        
-            // LAST LAYER DIRECTION
-            let lastDirection = lastLayer.direction;
-        
-            // CALCULATE OUTBOX 
-            let delta = lastLayer.threejs.position[lastDirection] - previousLayer.threejs.position[lastDirection] // !NOTE: THE BOTH BOX MUST BE CALCULATED WITH THE SAME DIRECTION
-            let alpha = Math.abs(delta); // GET POSITIVE NUM
-        
-            // CALCULATE OUTBOX WIDTH DEPTH
-            let outbox = (lastDirection === "x")? lastLayer.width : lastLayer.depth;
-            let inbox = outbox - alpha;
-                
-            const boxRelation = inbox / outbox; // 0 to 1
-            if(boxRelation >= (precision?precision:0.95)){
-                fncStart();
-                if(output){
-                    console.log(boxRelation); // OUTPUT
-                }
+    // USER LEAVE
+    document.addEventListener("visibilitychange", e => {
+        if (GAME_.end) {
+            if (document.hidden) {
+                GAME_.soundTrack.menu.current.pause();
+            } else {
+                GAME_.soundTrack.menu.current.play();
             }
-        } catch (e) {
-            // BY DEFAULT START GAME
-            fncStart();
         }
-    }, timer?timer:20);
-}
+    }, false);
+
+    alertLog("This is an <span style='background: rgb(255, 100, 0);'><b>&nbsp;experimental version&nbsp;</b></span>, don't consider this a final version");
+});
