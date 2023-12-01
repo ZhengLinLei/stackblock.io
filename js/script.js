@@ -149,13 +149,15 @@ function playConfetti(min, max){
         count: party.variation.range(min?min:60, max?max:80),
     });
 }
+
 // ALPHABOT v1.0 INTERNAL BOT FOR TESTING
 function playBot(precision, timer, output=true){ //PRECISION BETWEEN 0 TO 1
+    GAME_.unlockAchieve('cheater', 'Faker, cheater... 🤬');
     GAME_.botMode = true;
     let botTimer = setInterval(()=>{
         try {
-            const lastLayer = stackBoxArr[stackBoxArr.length -1];
-            const previousLayer = stackBoxArr[stackBoxArr.length -2];
+            const lastLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -1];
+            const previousLayer = GAME_.stackBoxArr[GAME_.stackBoxArr.length -2];
         
             // LAST LAYER DIRECTION
             let lastDirection = lastLayer.direction;
@@ -423,7 +425,12 @@ window.addEventListener('load', ()=>{
         GAME_.achievement[achieve] = {
             message
         }
-        console.log(GAME_.achievement[achieve]);
+
+        GAME_.achievement.length++;
+        // console.log(GAME_.achievement[achieve]);
+        if (GAME_.achievement.length > GAME_.achievementUnlockMin)
+            document.body.classList.add('unlocked-achie');
+
         // Show
         document.querySelector('#achie-text .message').innerHTML = message;
         // Reset
@@ -439,6 +446,9 @@ window.addEventListener('load', ()=>{
     }
     // Set global
     let unlockAchieve = GAME_.unlockAchieve;
+    console.log(GAME_.achievement.length, GAME_.achievementUnlockMin);
+    if (GAME_.achievement.length > GAME_.achievementUnlockMin)
+        document.body.classList.add('unlocked-achie');
     
     // RESET COLISION WORLD AND SCENE AND OTHER STUFFS (LIKE MY MADNESS BECAUSE THERE ARE MANY BUGS)
     function reset(){
@@ -545,7 +555,7 @@ window.addEventListener('load', ()=>{
 
     GAME_.renderer.domElement.id = "Stackblock";
     // DISPLAY
-    document.body.appendChild(GAME_.renderer.domElement);
+    document.body.querySelector('#game').appendChild(GAME_.renderer.domElement);
 
     // GET CONFETTI RANGE
     if ('deviceMemory' in navigator) {
@@ -608,6 +618,9 @@ window.addEventListener('load', ()=>{
             // DISABLE RSULT AND DISPLAY POINTS
             resultTabDom.classList.toggle('disable');
             pointDom.classList.toggle('active');
+    
+            // REMOVE GAME-END
+            document.body.classList.remove('game-end');
 
             // DISABLE NEW RECORD
             if(GAME_.newRecord){
@@ -732,8 +745,7 @@ window.addEventListener('load', ()=>{
 
             }else{
                 // FIRST TIME PLAYING o_O
-                if(!localStorage.getItem(MEMORY_.localStorage.bestResult))
-                    unlockAchieve('noob', 'First time playing');
+                unlockAchieve('noob', 'First time playing');
 
                 // FINISH THE GAME
                 GAME_.end = true; // GAME.isEnd();
@@ -754,6 +766,8 @@ window.addEventListener('load', ()=>{
                 // ACTIVE RSULT AND DISPLAY POINTS
                 resultTabDom.classList.toggle('disable');
                 pointDom.classList.toggle('active');
+
+                document.body.classList.add('game-end')
                 
                 GAME_.status = false;
 
@@ -1028,6 +1042,10 @@ window.addEventListener('load', ()=>{
         // Resize canvas
         resizeCanvas();
     });
+
+    // Unlock achie section
+    document.querySelector('#unlock-achie').addEventListener('click', () => document.body.classList.add('lobby'));
+    document.querySelector('#lock-achie').addEventListener('click', () => document.body.classList.remove('lobby'));
 
     // SHARE RECORD
     recordShare.addEventListener(eventType, async () => {

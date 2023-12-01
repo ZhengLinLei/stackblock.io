@@ -22,108 +22,151 @@ body{
     -webkit-text-size-adjust: none;
     transition: .4s;
 
-    #Stackblock {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
+    #game, #lobby {
+        transition: .5s;
     }
-    .point-result{
-        position: fixed;
-        top: calc(20vh + 50px);
-        z-index: 99;
-        left: 50%;
-        transform: translateX(-50%);
-        transition: .8s;
 
-        &.active{
-            top: 40px;
+    .locks {
+        z-index: 3;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: none;
+        img {
+            width: 22px;
         }
     }
-    .combo-extra-point{
-        position: fixed;
-        top: 200px;
-        left: 50%;
-        transform: translateX(-50%);
-        transition: .3s;
-        opacity: 0;
-
-        
-        &.active{
-            animation: extraPointFlash 1s ease-out;
+    #game {
+        #Stackblock {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
         }
-    }
-    .combo-strike{
-        font-weight: 800;
-        font-size: 54px;
-        position: fixed;
-        top: 50vh;
-        left: 50vw;
-        transform: translate(-50%, 15vh);
-        transition: .3s;
-        opacity: 0;
-
-        &.open{
-            transform: translate(-50%, 10vh) scale(1.7) rotate(-10deg);
-            opacity: 1;
+        .point-result{
+            position: fixed;
+            top: calc(20vh + 50px);
+            z-index: 99;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: .8s;
+    
+            &.active{
+                top: 40px;
+            }
         }
-    }
-    .result-area{
-        &.disable{
+        .combo-extra-point{
+            position: fixed;
+            top: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: .3s;
             opacity: 0;
+    
+            
+            &.active{
+                animation: extraPointFlash 1s ease-out;
+            }
         }
-        transition: .4s;
-        top: 0;
-        left: 0;
-        position: fixed;
+        .combo-strike{
+            font-weight: 800;
+            font-size: 54px;
+            position: fixed;
+            top: 50vh;
+            left: 50vw;
+            transform: translate(-50%, 15vh);
+            transition: .3s;
+            opacity: 0;
+    
+            &.open{
+                transform: translate(-50%, 10vh) scale(1.7) rotate(-10deg);
+                opacity: 1;
+            }
+        }
+        .result-area{
+            &.disable{
+                opacity: 0;
+            }
+            transition: .4s;
+            top: 0;
+            left: 0;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, .8);
+            display: flex;
+            justify-content: center;
+    
+            header{
+                margin-top: 20vh;
+                position: relative;
+                transition: 1s;
+                .best{
+                    display: none;
+                }
+    
+                &.new{
+                    .best, .color-shape{
+                        display: block;
+                    }
+                    .score{
+                        display: none;
+                    }
+                }
+                .color-shape {
+                    height: 5px;
+                    display: none;
+                    width: 100%;
+                    margin-top: 5px;
+                    // colorArray = ["#42c2f1", "#fbda4f","#ab63df","#5fc581"]
+                    background: linear-gradient(90deg, #42c2f1 0%, #fbda4f 25%, #ab63df 50%, #5fc581 75%, #42c2f1 100%);
+                    background-size: 200%;
+                    animation: moveGradient 3s linear infinite;
+                }
+            }
+            footer.flash-text{
+                position: absolute;
+                bottom: 20vh;
+                animation: flash 1s infinite ease;
+                .mobile-version{
+                    display: none;
+                }
+                @media screen and (max-width: 700px) {
+                    .mobile-version{
+                        display: block;
+                    }
+                    .desktop-version{
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    #lobby {
         width: 100vw;
         height: 100vh;
-        background-color: rgba(0, 0, 0, .8);
-        display: flex;
-        justify-content: center;
-
-        header{
-            margin-top: 20vh;
-            position: relative;
-            transition: 1s;
-            .best{
-                display: none;
-            }
-
-            &.new{
-                .best, .color-shape{
-                    display: block;
-                }
-                .score{
-                    display: none;
-                }
-            }
-            .color-shape {
-                height: 5px;
-                display: none;
-                width: 100%;
-                margin-top: 5px;
-                // colorArray = ["#42c2f1", "#fbda4f","#ab63df","#5fc581"]
-                background: linear-gradient(90deg, #42c2f1 0%, #fbda4f 25%, #ab63df 50%, #5fc581 75%, #42c2f1 100%);
-                background-size: 200%;
-                animation: moveGradient 3s linear infinite;
-            }
+        position: absolute;
+        z-index: 3;
+        // background: white;
+        left: 100vw;
+        top: 0;
+        #lock-achie {
+            display: block;
         }
-        footer.flash-text{
-            position: absolute;
-            bottom: 20vh;
-            animation: flash 1s infinite ease;
-            .mobile-version{
-                display: none;
-            }
-            @media screen and (max-width: 700px) {
-                .mobile-version{
-                    display: block;
-                }
-                .desktop-version{
-                    display: none;
-                }
-            }
+    }
+    &.lobby {
+        #game {
+            transform: translateX(-100%);
+        }
+
+        #lobby {
+            left: 0;
+        }
+    }
+    &.unlocked-achie.game-end {
+        #game #unlock-achie {
+            display: block;
         }
     }
 
@@ -262,7 +305,6 @@ body{
             bottom: 0;
         }
     }
-
     #achie-popup {
         #achie-popup-text {
             padding: 5px;
