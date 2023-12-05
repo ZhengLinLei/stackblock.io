@@ -1,3 +1,12 @@
+v0.1.9 -> 05/12/2023 -----------------------------------> TAG: v0.1.9
+    - Fixed funding config
+    - Added secret section
+    - Added experimental bg music
+
+    !TODO: Pending to finish bg music branch
+    !TODO: Pending to finish Two function animation for v0.1.10    ------------------------> Deadlock
+    !TODO: Pending to create context save for v0.1.10   -----------------------------------> Deadlock
+
 v0.1.8 -> 17/11/2023 -----------------------------------> TAG: v0.1.8
     - Changed Variable organization
     - Changed all variable names
