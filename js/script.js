@@ -1066,5 +1066,5 @@ window.addEventListener('load', ()=>{
         }
     }, false);
 
-    alertLog("This is an <span style='background: rgb(255, 100, 0);'><b>&nbsp;experimental version&nbsp;</b></span>, don't consider this a final version");
+    // alertLog("This is an <span style='background: rgb(255, 100, 0);'><b>&nbsp;experimental version&nbsp;</b></span>, don't consider this a final version");
 });
